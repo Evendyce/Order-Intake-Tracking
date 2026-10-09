@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-This document records the intended design for Order Intake & Tracking. These are planning decisions, not claims of implemented or tested behaviour. Final implementation details and any deviations will be recorded here as work progresses.
+This document records the current scaffold and intended design for Order Intake & Tracking. The three projects have been generated and included in the solution. Business behaviour below remains planned; builds, startup, and tests have not yet been verified.
 
 The application serves an internal sales team: create purchase orders, review them, and track status without accidentally duplicating orders when a submission is retried.
 
@@ -12,7 +12,26 @@ Authentication, deployment, inventory, payments, tax, and discount rules are out
 
 ## Architecture
 
-Use one Visual Studio solution containing an ASP.NET Core API, Angular client, and xUnit test project. Keep the application compact, with business rules separated from HTTP handling and persistence so they can be tested directly.
+`OrderIntake.sln` contains `OIT/OIT.Server/OIT.Server.csproj`, `OIT/oit.client/oit.client.esproj`, and `OIT.Tests/OIT.Tests.csproj`. The Angular and ASP.NET Core template created separate frontend and backend projects; the xUnit project was added separately. Keep business rules separated from HTTP handling and persistence so they can be tested directly.
+
+### Scaffold progress
+
+| Setup task | Current evidence | Completed |
+| --- | --- | :---: |
+| Create solution and include all three projects | Project entries exist in `OrderIntake.sln`. | ☑ |
+| Create API scaffold | `OIT.Server` targets .NET 10 and uses controllers, HTTPS, and Development OpenAPI. | ☑ |
+| Create Angular scaffold | `oit.client` declares Angular 22.2, CLI 22.2, and TypeScript 6.0 dependency ranges. | ☑ |
+| Create xUnit project | `OIT.Tests` targets .NET 10 and references xUnit 2.9.3 and the Visual Studio runner. | ☑ |
+| Configure repository ignores | Build output, dependencies, editor state, coverage, LocalDB data, and local certificate files are ignored. | ☑ |
+| Reference server from tests | No API project reference currently exists in `OIT.Tests.csproj`. | ☐ |
+| Verify scaffold execution | Restore, build, startup, and tests remain unverified. | ☐ |
+| Replace template sample | Weather forecast code and the empty xUnit test remain. | ☐ |
+
+The development environment is Visual Studio 2026, with Node.js 24.21.0 and npm 11.19.0 reported during setup. The selected .NET 10, Angular 22, and TypeScript 6 versions meet the assignment's minimum versions. Installed frontend package versions will be recorded through the lockfile; current `package.json` entries are ranges.
+
+The server references the Angular `.esproj` and configures the SPA proxy to launch `npm start`. The Angular development server uses HTTPS on port 61009; the API HTTPS profile uses port 7145. Its current frontend proxy covers only the weather forecast sample. Order/client routes and the startup configuration still need end-to-end verification.
+
+The generated frontend contains Vitest dependencies, a `karmaConfig` test option, and a Jasmine declaration in the `.esproj`. This tooling needs review before relying on frontend tests; frontend tests remain optional within the assignment.
 
 | Component | Responsibility | Completed |
 | --- | --- | :---: |
@@ -94,6 +113,12 @@ Filter orders by external reference, client, and status. Apply filters before so
 
 LocalDB adds installation and database setup work compared with in-memory storage and makes the intended local environment Windows-specific. This is an accepted trade-off for persistent relational storage; clear setup documentation is part of the deliverable.
 
+### Source control
+
+Keep solution/project files, application configuration, migrations, and dependency lockfiles in Git. The root `.gitignore` covers nested .NET build directories, Angular dependencies and caches, Visual Studio user state, test output, local environment overrides, LocalDB database files, and private certificate files. The Angular template's nested `.gitignore` also remains in place. Shared `.vscode` launch and task files are retained.
+
+Database files will not be distributed through Git; migrations and documented initialization will reproduce the schema. EF Core packages, migrations, and connection configuration have not yet been added.
+
 ## Verification task list
 
 | Verification | Expected result | Completed |
@@ -119,7 +144,8 @@ Use xUnit for calculations, validation, status rules, editing rules, and repeat-
 
 - [x] Record the initial scope, design, and trade-offs.
 - [ ] Finalize currency/rounding, content-equivalence, and historical client-detail policies.
-- [ ] Record the implemented API contracts and actual project structure.
+- [x] Record the actual project structure, framework selections, and source-control conventions.
+- [ ] Record the implemented order/client API contracts.
 - [ ] Update README with exact dependencies, database setup, startup, and test instructions.
 - [ ] Record test results and remaining limitations.
 - [ ] Verify setup from a fresh checkout.
