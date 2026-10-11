@@ -2,6 +2,10 @@
 
 A small internal sales application for recording purchase orders, preventing accidental duplicate submissions, and tracking order progress. Built for the Senior .NET/Angular technical assignment.
 
+![Order Intake and Tracking orders workspace with the VoidGlass dark theme](docs/images/voidglass-orders.jpg)
+
+*VoidGlass UI preview from the optional `main-ui-overhaul` branch.*
+
 ## Reviewer note
 
 Please review the `main` branch for the technical assignment. It contains the intended submission, including the application, tests, setup instructions, and design notes.
