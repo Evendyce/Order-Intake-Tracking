@@ -32,6 +32,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+# Syncfusion Visual Studio extension diagnostics outside application projects
+Miscellaneous FilesError*.log
 
 # Local environment overrides (keep example files shareable)
 .env
