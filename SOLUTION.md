@@ -136,7 +136,7 @@ Verified on 11 October 2026:
 | IDE database connection | Visual Studio build succeeded and connected by instance name after LocalDB was stopped, automatically starting it and reading the preserved order. | ☑ |
 | Visual Studio HTTPS startup | User confirmed the saved order appeared automatically after startup without a manual refresh. | ☑ |
 | Browser certificate trust | Trusted the exported Angular certificate with `dotnet dev-certs https --trust`; browser opened HTTPS Orders without a warning page, and client/API/proxy requests passed normal certificate validation. | ☑ |
-| Fresh-checkout setup | Not yet performed. | ☐ |
+| Fresh-checkout setup | Commit 2d0507d restored/built/tested in a separate clone; fresh database/certificate exports, HTTPS startup, order/client creation, and restart persistence passed. Installed prerequisites and global caches were shared. See [process and results](docs/FRESH_CHECKOUT.md). | ☑ |
 | Final accessibility/responsive review | Not yet completed. | ☐ |
 
 Integration tests run against uniquely named LocalDB databases and remove their own databases in teardown; they never delete the app database. Unit-only runs can exclude the `Integration` trait. Frontend tests use Angular's Vitest runner; the generated mixed Jasmine/Karma configuration was removed.
@@ -155,7 +155,7 @@ The latest HTTPS check used normal certificate validation for the Angular page, 
 - [x] Verify application restart persistence and separate-process HTTPS startup.
 - [x] Verify full Visual Studio HTTPS startup and core browser workflows.
 - [x] Trust the development browser HTTPS certificate.
-- [ ] Verify setup from a fresh checkout.
+- [x] Verify setup from a fresh checkout with isolated application data; document the process and shared-environment limits.
 - [ ] Complete final accessibility, responsive layout, and edge-case review.
 - [ ] Review all source and limitations before GitHub submission.
 - [ ] Record a 5–10 minute narrated demo covering the working flow, architecture, key decisions, trade-offs, and test evidence.

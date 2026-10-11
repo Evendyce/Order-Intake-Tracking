@@ -6,7 +6,7 @@ A small internal sales application for recording purchase orders, preventing acc
 
 The first end-to-end implementation is in place. Backend tests and the Angular production build pass. A browser walkthrough verified order creation, duplicate feedback, modification, status progression, filtering, and client add/edit/deactivation/reactivation.
 
-Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Final delivery, fresh-checkout validation, and the narrated demo remain pending.
+Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Fresh-checkout validation passed; final delivery review and the narrated demo remain pending.
 
 - [x] Create `OrderIntake.sln` with `OIT.Server`, `oit.client`, and `OIT.Tests`.
 - [x] Configure repository ignores and reference the server from the xUnit project.
@@ -16,7 +16,7 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Verify the main UI flow in a browser.
 - [x] Verify the complete Visual Studio HTTPS startup experience and core end-to-end workflows.
 - [x] Trust the development browser HTTPS certificate and verify HTTPS with certificate validation enabled.
-- [ ] Verify setup on a fresh checkout.
+- [x] Verify setup on a fresh checkout with an empty database and newly exported Angular certificates.
 - [ ] Complete final review and record the narrated demo.
 
 ## Technology and structure
@@ -52,6 +52,8 @@ OrderIntake.sln
 ## Local setup
 
 Use Windows with Visual Studio 2026 and the **ASP.NET and web development** workload, .NET 10 SDK, Node.js 24.21.0/npm 11.19.0, and SQL Server LocalDB. The Node.js development workload is optional. Install LocalDB through Visual Studio Installer's individual components if it is unavailable.
+
+Confirm `dotnet --version`, `node --version`, and `npm --version` in the terminal used for setup. If a version manager selects a different Node installation, select the documented version before restoring or building. See [fresh-checkout verification](docs/FRESH_CHECKOUT.md) for the reproducible process, results, and limits of the check.
 
 From the repository root:
 
@@ -121,6 +123,8 @@ Open `http://127.0.0.1:61009`. This workflow is for local development only. The 
 ## Tests and build
 
 ```powershell
+dotnet build OrderIntake.sln
+
 # All backend tests; requires the running OITDevelopment instance.
 dotnet test OIT.Tests/OIT.Tests.csproj
 
@@ -135,7 +139,7 @@ Pop-Location
 
 Visual Studio **Test > Test Explorer** also runs the xUnit tests. Integration tests create uniquely named `OIT_Tests_*` / `OIT_ApiTests_*` databases, apply migrations, and remove only their own databases during cleanup.
 
-Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases and 12 persistence/HTTP cases), plus **20 frontend tests** covering read recovery, retry limits, immediate errors, write safety, cancellation, and orders-page loading/error states. The solution build passed with no warnings/errors and the Angular production build passed. The saved order survived API restarts. `npm audit` reported zero vulnerabilities after removing an unused template dependency. Frontend tests use Angular's Vitest runner; the template's mixed Jasmine/Karma settings were removed.
+Verified on 11 October 2026, including a fresh clone: **33 backend tests passed** (21 business-rule cases and 12 persistence/HTTP cases), plus **22 frontend tests** covering read recovery, retry limits, immediate errors, write safety, cancellation, orders-page loading/error states, and client-list error recovery. The solution build passed with no warnings/errors and the Angular production build passed. The saved order survived API restarts. `npm audit` reported zero vulnerabilities after removing an unused template dependency. Frontend tests use Angular's Vitest runner; the template's mixed Jasmine/Karma settings were removed.
 
 API reads retry network errors and HTTP 502/503/504 up to eight times, one second apart, so normal startup delays retain a loading state and recover automatically. Other errors and all writes are reported immediately. Persistent read failures show an error after retries rather than a misleading empty-list message.
 
@@ -178,7 +182,7 @@ API reads retry network errors and HTTP 502/503/504 up to eight times, one secon
 | README setup instructions and SOLUTION design notes updated. | ☑ |
 | Verify full Visual Studio HTTPS startup. | ☑ |
 | Trust the development browser HTTPS certificate. | ☑ |
-| Verify restoration and setup on a fresh checkout. | ☐ |
+| Verify restoration and setup on a fresh checkout. | ☑ |
 | Final accessibility, responsive layout, and edge-case review. | ☐ |
 | Final GitHub submission review. | ☐ |
 | Record a 5–10 minute narrated application/architecture demo. | ☐ |
