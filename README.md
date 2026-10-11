@@ -2,6 +2,12 @@
 
 A small internal sales application for recording purchase orders, preventing accidental duplicate submissions, and tracking order progress. Built for the Senior .NET/Angular technical assignment.
 
+## Reviewer note
+
+Please review the `main` branch for the technical assignment. It contains the intended submission, including the application, tests, setup instructions, and design notes.
+
+The separate `main-ui-overhaul` branch is reserved for a personal UI redesign. Work on that branch will begin after the remaining submission checks are complete; it is outside the intended assignment review.
+
 ## Project status
 
 The first end-to-end implementation is in place. Backend tests and the Angular production build pass. A browser walkthrough verified order creation, duplicate feedback, modification, status progression, filtering, and client add/edit/deactivation/reactivation.
