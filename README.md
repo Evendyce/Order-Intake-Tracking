@@ -2,11 +2,23 @@
 
 A small internal sales application for recording purchase orders, preventing accidental duplicate submissions, and tracking order progress. Built for the Senior .NET/Angular technical assignment.
 
+## Application preview
+
+**Current app view — `main` (assignment review branch)**
+
+![Current Order Intake and Tracking orders workspace](docs/images/orders-current.png)
+
+**UI enhanced view — `main-ui-overhaul` (optional VoidGlass redesign)**
+
+![Enhanced Order Intake and Tracking orders workspace with the VoidGlass dark theme](docs/images/orders-voidglass.png)
+
+*The enhanced view uses the VoidGlass theme by Donovan Minnie and is available on the separate `main-ui-overhaul` branch.*
+
 ## Reviewer note
 
 Please review the `main` branch for the technical assignment. It contains the intended submission, including the application, tests, setup instructions, and design notes.
 
-The separate `main-ui-overhaul` branch is reserved for a personal UI redesign. Work on that branch will begin after the remaining submission checks are complete; it is outside the intended assignment review.
+The separate `main-ui-overhaul` branch contains a personal UI redesign using VoidGlass. It is outside the intended assignment review.
 
 ## Project status
 
