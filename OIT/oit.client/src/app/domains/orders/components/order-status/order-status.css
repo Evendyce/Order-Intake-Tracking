@@ -13,6 +13,6 @@
 }
 .status-flow li.current {
   background: var(--primary);
-  color: white;
+  color: var(--on-primary);
   border-color: var(--primary);
 }

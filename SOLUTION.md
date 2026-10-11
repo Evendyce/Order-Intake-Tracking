@@ -12,7 +12,9 @@ The assignment's required backend/frontend/tests are supplemented by the agreed 
 
 Backend folders separate API controllers/contracts, domain entities/rules, order application services, persistence, and error handling. `OrderRules` has no HTTP or database dependency. `OrderService` orchestrates persistence and business rules. Client CRUD is deliberately small and remains in its domain controller; it can move into a service if client workflows grow.
 
-Angular is component-based, with external HTML templates and lazy-loaded standalone views. Each domain owns its `models`, `services`, `components`, and `views`. The root component provides navigation only. Reusable components own line-item editing, status progression, duplicate feedback, client editing, error feedback, and confirmations; screens do not construct HTML strings.
+Angular is component-based, with external HTML templates and lazy-loaded standalone views. Each domain owns its `models`, `services`, `components`, and `views`. The root component provides the application shell. Reusable components own line-item editing, status progression, duplicate feedback, client editing, error feedback, and confirmations; screens do not construct HTML strings.
+
+On the optional `main-ui-overhaul` branch, the shell and shared surfaces use Donovan Minnie's VoidGlass theme. Original SCSS palettes and vector assets are retained, with semantic colors adapted for forms, validation, and status indicators. A standalone Angular theme switcher persists the selected palette, and an early script applies it before rendering. Reduced-motion preferences select a static background. See [VoidGlass notes](docs/VOIDGLASS.md). The `main` branch remains the intended assignment submission.
 
 Comments explain choices where code alone cannot convey the reason: database uniqueness, client snapshots, atomic saves, explicit EF state for replacement lines, lazy loading, native modal focus containment, and local startup migrations. Comments avoid narrating obvious assignments.
 

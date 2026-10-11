@@ -1,8 +1,14 @@
+<a class="skip-link" href="#main-content" (click)="skipToContent($event)">Skip to content</a>
 <header>
   <nav aria-label="Main navigation">
-    <a class="brand" routerLink="/orders">Order Intake</a>
+    <a class="brand" routerLink="/orders">
+      <span class="brand-mark" aria-hidden="true">◈</span>
+      <span>Order Intake<span class="brand-caption">Tracking workspace</span></span>
+    </a>
     <a routerLink="/orders" routerLinkActive="active">Orders</a>
     <a routerLink="/clients" routerLinkActive="active">Clients</a>
+    <oit-theme-toggle />
   </nav>
 </header>
-<main><router-outlet /></main>
+<main id="main-content" tabindex="-1"><router-outlet /></main>
+<footer><span>Order Intake &amp; Tracking</span><span>VoidGlass by Donovan Minnie</span></footer>

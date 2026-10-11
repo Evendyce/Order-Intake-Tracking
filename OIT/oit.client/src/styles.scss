@@ -1,15 +1,11 @@
-:root {
-  --primary: #275dd7;
-  --text: #172438;
-  --muted: #56677f;
-  --border: #d5ddea;
-}
+@use './theme/voidglass/voidglass';
+
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  background: #f4f6fa;
+  background: var(--vg-bg, #000);
   color: var(--text);
   font-family: 'Segoe UI', sans-serif;
   line-height: 1.5;
@@ -33,7 +29,7 @@ textarea {
 button,
 .button {
   background: var(--primary);
-  color: white;
+  color: var(--on-primary);
   border: 1px solid var(--primary);
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
@@ -43,27 +39,27 @@ button,
 }
 button.secondary,
 .button.secondary {
-  background: white;
+  background: var(--input);
   color: var(--text);
-  border-color: var(--border);
+  border-color: var(--control-border);
 }
 button.danger {
-  background: white;
-  color: #a52424;
-  border-color: #e8bcbc;
+  background: var(--surface);
+  color: var(--error);
+  border-color: var(--error);
 }
 button:disabled {
   opacity: 0.5;
   cursor: default;
 }
 :focus-visible {
-  outline: 3px solid #7da3fa;
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 .panel {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.8rem;
+  border-radius: 1.25rem;
   padding: 1.5rem;
   margin: 1rem 0;
 }
@@ -94,7 +90,7 @@ button:disabled {
 }
 .field-error {
   display: block;
-  color: #812626;
+  color: var(--error);
   font-size: 0.9rem;
   font-weight: 400;
 }
@@ -108,7 +104,7 @@ button:disabled {
   margin-bottom: 0.4rem;
 }
 [aria-invalid='true'] {
-  border-color: #a52424;
+  border-color: var(--error);
 }
 label {
   display: flex;
@@ -120,11 +116,11 @@ label {
 input,
 select,
 textarea {
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 0.4rem;
   padding: 0.6rem;
   width: 100%;
-  background: white;
+  background: var(--input);
   color: var(--text);
 }
 .checkbox {
@@ -190,7 +186,7 @@ th {
   display: inline-block;
   border-radius: 1rem;
   padding: 0.2rem 0.6rem;
-  background: #edf2fd;
+  background: var(--badge-bg);
   font-size: 0.85rem;
 }
 .summary {
@@ -207,9 +203,9 @@ dd {
   white-space: pre-wrap;
 }
 .feedback {
-  background: #fff0ef;
-  color: #812626;
-  border: 1px solid #edc4c0;
+  background: var(--error-bg);
+  color: var(--error);
+  border: 1px solid var(--error);
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
@@ -223,7 +219,7 @@ dialog {
   width: calc(100% - 2rem);
 }
 dialog::backdrop {
-  background: #17243880;
+  background: #030712b3;
 }
 @media (max-width: 700px) {
   .form-grid,

@@ -6,7 +6,7 @@ A small internal sales application for recording purchase orders, preventing acc
 
 Please review the `main` branch for the technical assignment. It contains the intended submission, including the application, tests, setup instructions, and design notes.
 
-The separate `main-ui-overhaul` branch is reserved for a personal UI redesign. Work on that branch will begin after the remaining submission checks are complete; it is outside the intended assignment review.
+The separate `main-ui-overhaul` branch contains a personal UI redesign using **VoidGlass**, Donovan Minnie's theme from RecipeShare. It is outside the intended assignment review. See [VoidGlass integration notes](docs/VOIDGLASS.md) for the source, customization, and verification.
 
 ## Project status
 
