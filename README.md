@@ -12,7 +12,7 @@ The separate `main-ui-overhaul` branch is reserved for a personal UI redesign. W
 
 The first end-to-end implementation is in place. Backend tests and the Angular production build pass. A browser walkthrough verified order creation, duplicate feedback, modification, status progression, filtering, and client add/edit/deactivation/reactivation.
 
-Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Fresh-checkout validation passed; final delivery review and the narrated demo remain pending.
+Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Fresh-checkout validation, the recorded responsive-layout checks, and all 25 edge-case/recovery scenarios passed. Required-field indicators, final delivery review, and the narrated demo remain pending. Screen-reader testing was intentionally skipped.
 
 - [x] Create `OrderIntake.sln` with `OIT.Server`, `oit.client`, and `OIT.Tests`.
 - [x] Configure repository ignores and reference the server from the xUnit project.
@@ -23,7 +23,12 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Verify the complete Visual Studio HTTPS startup experience and core end-to-end workflows.
 - [x] Trust the development browser HTTPS certificate and verify HTTPS with certificate validation enabled.
 - [x] Verify setup on a fresh checkout with an empty database and newly exported Angular certificates.
-- [ ] Complete final review and record the narrated demo.
+- [x] Complete the recorded responsive-layout checks.
+- [x] Verify all 25 edge-case and recovery scenarios in an isolated setup.
+- [ ] Add clearer required-field indicators and retest the affected forms.
+- [ ] Complete the accessibility review with the skipped screen-reader check documented.
+- [ ] Complete the final GitHub submission review.
+- [ ] Record the narrated application/architecture demo.
 
 ## Technology and structure
 
@@ -189,8 +194,13 @@ API reads retry network errors and HTTP 502/503/504 up to eight times, one secon
 | Verify full Visual Studio HTTPS startup. | ☑ |
 | Trust the development browser HTTPS certificate. | ☑ |
 | Verify restoration and setup on a fresh checkout. | ☑ |
-| Final accessibility, responsive layout, and edge-case review. | ☐ |
+| Responsive-layout review: recorded viewport, zoom, table, dialog, and long-content checks passed. See [UI checklist](docs/UI_REVIEW_CHECKLIST.md). | ☑ |
+| Edge-case and recovery review: all 25 scenarios passed; 22 frontend tests passed again. See [review report](docs/EDGE_CASE_REVIEW.md). | ☑ |
+| Add clearer required-field indicators and retest the affected forms. | ☐ |
+| Finalize accessibility review; document intentionally skipped screen-reader testing. | ☐ |
 | Final GitHub submission review. | ☐ |
 | Record a 5–10 minute narrated application/architecture demo. | ☐ |
 
 See [SOLUTION.md](SOLUTION.md) for business policies, endpoint contracts, trade-offs, and verification details.
+
+The edge-case review used a separate LocalDB instance because `OITDevelopment` failed to start from the verification shell. That unresolved environment issue and the limits of the isolated startup check are recorded in the [review report](docs/EDGE_CASE_REVIEW.md).
