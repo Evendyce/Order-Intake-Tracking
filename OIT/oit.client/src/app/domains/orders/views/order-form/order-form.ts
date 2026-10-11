@@ -24,6 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     FieldRules,
   ],
   templateUrl: './order-form.html',
+  // Template-driven controls mutate the draft model in place; keep those edits visible to child controls.
   changeDetection: ChangeDetectionStrategy.Default,
 })
 export class OrderForm {
@@ -87,6 +88,7 @@ export class OrderForm {
       );
       return;
     }
+    // Send exactly one client mode. The API owns matching/creation and saves it atomically with the order.
     const input = {
       ...this.model,
       clientId: this.newClientMode ? undefined : this.model.clientId,
@@ -102,6 +104,7 @@ export class OrderForm {
       this.api.create(input).subscribe({
         next: (result) => {
           this.busy.set(false);
+          // An equivalent repeat is HTTP 200, but still needs the same review popup as a changed repeat.
           if (result.isDuplicate) this.duplicate.set(result);
           else this.router.navigate(['/orders', result.overview.id]);
         },

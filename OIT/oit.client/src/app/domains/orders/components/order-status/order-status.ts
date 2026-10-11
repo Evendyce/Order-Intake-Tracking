@@ -10,5 +10,6 @@ export class OrderStatusComponent {
   @Input({ required: true }) order!: Order;
   @Input() busy = false;
   @Output() changeStatus = new EventEmitter<OrderStatus>();
+  // Steps illustrate progression; allowed action buttons come from order.allowedStatuses, not this array.
   steps: OrderStatus[] = ['Pending', 'Confirmed', 'Fulfilled'];
 }

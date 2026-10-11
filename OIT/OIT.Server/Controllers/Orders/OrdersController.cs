@@ -8,11 +8,13 @@ using OIT.Server.Persistence;
 namespace OIT.Server.Controllers.Orders;
 
 [ApiController, Route("api/orders")]
+// Controllers expose resource routes; multi-step writes are coordinated by OrderService.
 public class OrdersController(OrderService service, IntakeDbContext db) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<OrderView[]>> List(string? reference, Guid? clientId, OrderStatus? status, CancellationToken ct)
     {
+        // Listing is read-only: skip change tracking, but load items for the shared order projection.
         var query = db.Orders.AsNoTracking().Include(o => o.Items).AsQueryable();
         if (!string.IsNullOrWhiteSpace(reference))
         {
@@ -21,6 +23,7 @@ public class OrdersController(OrderService service, IntakeDbContext db) : Contro
         }
         if (clientId.HasValue) query = query.Where(o => o.ClientId == clientId);
         if (status.HasValue) query = query.Where(o => o.Status == status);
+        // ID breaks timestamp ties so refreshes have a stable ordering. Pagination is deferred for this small dataset.
         var orders = await query.OrderByDescending(o => o.CreatedAt).ThenByDescending(o => o.Id).ToArrayAsync(ct);
         return orders.Select(OrderRules.View).ToArray();
     }
@@ -33,6 +36,7 @@ public class OrdersController(OrderService service, IntakeDbContext db) : Contro
     {
         var result = await service.Create(input, ct);
         if (!result.IsDuplicate) return CreatedAtAction(nameof(Get), new { id = result.Overview.Id }, result);
+        // An equivalent repeat succeeds without insertion; changed content requires explicit review.
         return StatusCode(result.Differences.Length == 0 ? 200 : 409, result);
     }
 

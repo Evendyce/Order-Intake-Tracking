@@ -17,6 +17,7 @@ export class ConfirmDialog implements AfterViewInit {
   @Output() dismissed = new EventEmitter<void>();
   @ViewChild('dialog') dialog!: ElementRef<HTMLDialogElement>;
   ngAfterViewInit() {
+    // Native dialogs supply modal focus containment and Escape handling after the element exists.
     this.dialog.nativeElement.showModal();
   }
 }

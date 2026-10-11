@@ -26,12 +26,14 @@ export class ClientEditor {
   email = '';
   isActive = true;
   save(form: NgForm) {
+    // Keep submit available for invalid forms so users can reveal linked field-level feedback.
     form.control.markAllAsTouched();
     if (form.valid && !this.busy)
       this.saveClient.emit({ name: this.name, email: this.email, isActive: this.isActive });
   }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['client']) {
+      // Edit a local draft so cancelling does not mutate the profile shown in the list.
       this.name = this.client?.name ?? '';
       this.email = this.client?.email ?? '';
       this.isActive = this.client?.isActive ?? true;

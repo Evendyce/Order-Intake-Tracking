@@ -32,6 +32,7 @@ export class OrderDetail {
     });
   }
   status(status: OrderStatus) {
+    // Cancellation is terminal, so ask through the shared dialog before issuing the write.
     if (status === 'Cancelled') {
       this.confirmingCancellation.set(true);
       return;
@@ -47,6 +48,7 @@ export class OrderDetail {
     this.error.set('');
     this.api.status(this.order()!, status).subscribe({
       next: (o) => {
+        // Use the returned version and capabilities rather than predicting the new resource locally.
         this.order.set(o);
         this.busy.set(false);
       },

@@ -9,9 +9,11 @@ using OIT.Server.Persistence;
 namespace OIT.Server.Controllers.Clients;
 
 [ApiController, Route("api/clients")]
+// These single-resource operations stay in the controller; a service can be introduced if workflows grow.
 public class ClientsController(IntakeDbContext db) : ControllerBase
 {
     [HttpGet]
+    // Include inactive profiles so users can reactivate them and review historical relationships.
     public async Task<ClientView[]> List(CancellationToken ct) => await db.Clients.AsNoTracking()
         .OrderBy(c => c.Name).Select(c => new ClientView(c.Id, c.Name, c.Email, c.IsActive, c.Version)).ToArrayAsync(ct);
 
@@ -38,6 +40,7 @@ public class ClientsController(IntakeDbContext db) : ControllerBase
         var email = OrderRules.Normalize(input.Email);
         if (await db.Clients.AnyAsync(c => c.Id != id && c.NormalizedEmail == email, ct))
             throw new BusinessException(409, "A client with this email already exists.");
+        // Profile edits do not rewrite existing order snapshots; explicit order edits refresh those.
         client.Name = input.Name.Trim(); client.Email = input.Email.Trim();
         client.NormalizedEmail = email; client.IsActive = input.IsActive; client.Version = Guid.NewGuid();
         await db.SaveChangesAsync(ct);

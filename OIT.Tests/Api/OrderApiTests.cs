@@ -14,6 +14,8 @@ using OIT.Server.Persistence;
 
 namespace OIT.Tests.Api;
 
+// Exercise the real HTTP pipeline (binding, validation, serialization, and error mapping),
+// complementing the pure rule tests and direct persistence tests.
 public class OrderApiTests : IAsyncLifetime
 {
     private readonly string connection = $"Server=(localdb)\\OITDevelopment;Database=OIT_ApiTests_{Guid.NewGuid():N};Trusted_Connection=True;TrustServerCertificate=True";

@@ -17,6 +17,7 @@ public class IntakeDbContext(DbContextOptions<IntakeDbContext> options) : DbCont
         clients.Property(c => c.Email).HasMaxLength(254);
         clients.Property(c => c.NormalizedEmail).HasMaxLength(254);
         clients.HasIndex(c => c.NormalizedEmail).IsUnique();
+        // Application-generated versions work across edits/status changes without relying on a SQL rowversion DTO.
         clients.Property(c => c.Version).IsConcurrencyToken();
         var orders = model.Entity<Order>();
         orders.Property(o => o.ExternalReference).HasMaxLength(100);
@@ -30,8 +31,10 @@ public class IntakeDbContext(DbContextOptions<IntakeDbContext> options) : DbCont
         orders.Property(o => o.ClientEmail).HasMaxLength(254);
         orders.Property(o => o.Status).HasConversion<string>().HasMaxLength(20);
         orders.Property(o => o.Version).IsConcurrencyToken();
+        // Money precision matches the supported two-decimal currencies and bounded input ranges.
         orders.Property(o => o.Subtotal).HasPrecision(18, 2);
         orders.Property(o => o.Total).HasPrecision(18, 2);
+        // Preserve client relationships, while lines belong entirely to their order aggregate.
         orders.HasOne(o => o.Client).WithMany().HasForeignKey(o => o.ClientId).OnDelete(DeleteBehavior.Restrict);
         orders.HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
         var lines = model.Entity<OrderLine>();

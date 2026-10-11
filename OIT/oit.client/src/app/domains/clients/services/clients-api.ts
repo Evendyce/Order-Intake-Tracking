@@ -15,6 +15,7 @@ export class ClientsApi {
     return this.http.put<Client>(`/api/clients/${client.id}`, client);
   }
   remove(client: Client) {
+    // DELETE has no request body here; the query version still protects against stale removals.
     return this.http.delete<void>(`/api/clients/${client.id}`, {
       params: { version: client.version },
     });

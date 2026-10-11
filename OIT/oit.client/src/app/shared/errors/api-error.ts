@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+// Normalize transport, model-validation, and Problem Details failures into shared UI feedback.
 export function apiError(error: HttpErrorResponse): string {
   if ([0, 502, 503, 504].includes(error.status))
     return 'Cannot reach the API. Check that the server is running, then retry.';

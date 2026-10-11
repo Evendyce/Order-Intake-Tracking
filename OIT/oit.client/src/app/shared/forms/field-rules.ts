@@ -16,6 +16,7 @@ export class FieldRules implements Validator {
     if (this.oitFieldRules === 'text') return String(value).trim() ? null : { required: true };
     if (this.oitFieldRules === 'quantity')
       return Number.isInteger(value) ? null : { wholeQuantity: true };
+    // Ignore binary floating-point noise when checking two-decimal prices; do not round the user's value.
     return Number.isFinite(value) && Math.abs(value * 100 - Math.round(value * 100)) < 0.000001
       ? null
       : { pricePrecision: true };

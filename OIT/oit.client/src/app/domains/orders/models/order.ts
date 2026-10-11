@@ -24,6 +24,7 @@ export interface Order {
   allowedStatuses: OrderStatus[];
   items: OrderLine[];
 }
+// Inputs omit calculated totals and status; the server owns those values and lifecycle rules.
 export interface OrderInput {
   externalReference: string;
   clientId?: string;

@@ -2,12 +2,16 @@ using OIT.Server.Contracts.Orders;
 
 namespace OIT.Server.Domain.Orders;
 
+/// <summary>
+/// Server-owned order policy, independent of HTTP and EF Core so it can be tested directly.
+/// </summary>
 public static class OrderRules
 {
     // Limit the supported currencies rather than assume every currency uses two decimals.
     public static readonly string[] Currencies = ["USD", "ZAR", "EUR", "GBP"];
     public static string Normalize(string value) => value.Trim().ToUpperInvariant();
 
+    // The same policy validates writes and supplies the UI's available actions.
     public static OrderStatus[] AllowedStatuses(OrderStatus status) => status switch
     {
         OrderStatus.Pending => [OrderStatus.Confirmed, OrderStatus.Cancelled],
@@ -17,6 +21,7 @@ public static class OrderRules
 
     public static void ChangeStatus(Order order, OrderStatus next, DateTimeOffset now)
     {
+        // Repeating a status is harmless and must not change its timestamp or version.
         if (next == order.Status) return;
         if (!AllowedStatuses(order.Status).Contains(next))
             throw new BusinessException(409, $"An order cannot move from {order.Status} to {next}.");
@@ -47,6 +52,8 @@ public static class OrderRules
             Quantity = i.Quantity, UnitPrice = i.UnitPrice,
             LineTotal = decimal.Round(i.Quantity * i.UnitPrice, 2, MidpointRounding.AwayFromZero)
         }).ToList();
+        // Totals are derived from validated decimal inputs; there is no client total to trust.
+        // Keep both fields because taxes/discounts could later make them differ.
         order.Subtotal = order.Items.Sum(i => i.LineTotal);
         order.Total = order.Subtotal;
     }

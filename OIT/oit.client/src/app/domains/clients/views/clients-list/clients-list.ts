@@ -50,6 +50,7 @@ export class ClientsList {
     this.busy.set(true);
     this.error.set('');
     const client = this.selected();
+    // Carry the selected profile's version into edits so another user's changes are not overwritten.
     const request = client ? this.api.update({ ...client, ...input }) : this.api.create(input);
     request.subscribe({
       next: () => {
@@ -68,6 +69,7 @@ export class ClientsList {
     this.pendingRemoval.set(client);
   }
   confirmRemoval() {
+    // The server decides deletion versus deactivation; reload to display that authoritative outcome.
     const client = this.pendingRemoval()!;
     this.pendingRemoval.set(null);
     this.busy.set(true);

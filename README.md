@@ -217,4 +217,6 @@ After the required-field update, **25 frontend tests passed** across five files 
 
 See [SOLUTION.md](SOLUTION.md) for business policies, endpoint contracts, trade-offs, and verification details.
 
+For a guided source walkthrough and the reasons behind the implementation, see [Design decisions](docs/DESIGN_DECISIONS.md).
+
 The edge-case review used a separate LocalDB instance because `OITDevelopment` failed to start from the verification shell. That unresolved environment issue and the limits of the isolated startup check are recorded in the [review report](docs/EDGE_CASE_REVIEW.md).

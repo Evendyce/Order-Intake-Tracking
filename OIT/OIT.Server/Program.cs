@@ -6,7 +6,7 @@ using OIT.Server.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Named statuses make the API contract readable; reject numeric values instead of accepting unknown enum IDs.
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: false)));
@@ -14,9 +14,10 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddDbContext<IntakeDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("OrderIntake")));
+// Inject time so business timestamps can be controlled in tests rather than reading a static clock.
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<OrderService>();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Expose the contract for local development without introducing an additional documentation UI dependency.
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -38,10 +39,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Authentication is outside assignment scope; this middleware alone does not restrict endpoint access.
 app.UseAuthorization();
 
 app.MapControllers();
 
+// Published Angular routes must also work when opened directly or refreshed in the browser.
 app.MapFallbackToFile("/index.html");
 
 app.Run();

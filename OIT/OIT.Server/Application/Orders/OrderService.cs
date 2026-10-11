@@ -8,6 +8,10 @@ using OIT.Server.Persistence;
 
 namespace OIT.Server.Application.Orders;
 
+/// <summary>
+/// Coordinates order persistence while leaving calculations and lifecycle policy in OrderRules.
+/// A scoped context keeps each request's transaction and tracked entities together.
+/// </summary>
 public class OrderService(IntakeDbContext db, TimeProvider clock)
 {
     public async Task<SubmissionView> Create(OrderInput input, CancellationToken ct)
@@ -28,6 +32,8 @@ public class OrderService(IntakeDbContext db, TimeProvider clock)
             var email = client?.Email ?? input.NewClient!.Email.Trim();
             var existing = await db.Orders.Include(o => o.Items)
                 .SingleOrDefaultAsync(o => o.NormalizedReference == candidate.NormalizedReference, ct);
+            // Resolve duplicates before inserting a client or enforcing new-order availability.
+            // A repeat submission reviews saved history even if that client is now inactive.
             if (existing is not null)
                 return new(true, OrderRules.View(existing), OrderRules.Differences(existing, input, email));
             if (client is { IsActive: false }) throw new BusinessException(409, "Reactivate this client before creating an order.");
@@ -94,6 +100,8 @@ public class OrderService(IntakeDbContext db, TimeProvider clock)
 
     private static void CheckVersion(Order order, Guid? version)
     {
+        // This gives a helpful early conflict; EF's concurrency token also catches writes
+        // that race after this check but before SaveChanges.
         if (version != order.Version) throw new BusinessException(409, "This order changed. Reload it before saving.");
     }
 }

@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Order, OrderInput, OrderStatus, Submission } from '../models/order';
 
 @Injectable({ providedIn: 'root' })
+// Keep HTTP contracts here and interaction state in views; relative URLs also work through the dev proxy.
 export class OrdersApi {
   private http = inject(HttpClient);
   list(filters: { reference: string; clientId: string; status: string }) {
@@ -20,6 +21,7 @@ export class OrdersApi {
     return this.http.put<Order>(`/api/orders/${id}`, input);
   }
   status(order: Order, status: OrderStatus) {
+    // Submit the last loaded version, allowing the server to detect stale status changes.
     return this.http.patch<Order>(`/api/orders/${order.id}/status`, {
       status,
       version: order.version,

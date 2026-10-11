@@ -21,6 +21,8 @@ export class LineItemsEditor {
     this.itemsChange.emit(this.items.filter((_, i) => i !== index));
   }
   valid() {
+    // Line controls are standalone NgModels, so the parent form needs an explicit aggregate validity check.
+    // The tolerance accommodates JavaScript number representation; server decimal validation remains final.
     return (
       this.items.length > 0 &&
       this.items.length <= 100 &&

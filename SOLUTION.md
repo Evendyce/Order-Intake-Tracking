@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-The first implementation covers order intake, duplicate prevention, order review/editing/status changes, filtering, and client management with automatic client creation. The backend has 33 passing tests and the Angular production build passes. The main flows have been checked in a local browser; final review, fresh-checkout setup, and the video demo are outstanding.
+The implementation covers order intake, duplicate prevention, order review/editing/status changes, filtering, and client management with automatic client creation. Recorded verification includes 33 backend tests, 25 frontend tests, and a passing Angular production build. Browser workflows, fresh-checkout setup, and final submission review are complete; the narrated video demo remains outstanding. Screen-reader testing was intentionally skipped.
 
 The assignment's required backend/frontend/tests are supplemented by the agreed extensions: UI status changes, duplicate overview and modification flow, LocalDB storage, filters, client CRUD, and automatic client creation. Authentication, deployment, inventory, payments, taxes, and discounts remain outside scope.
 
@@ -16,6 +16,8 @@ Angular is component-based, with external HTML templates and lazy-loaded standal
 
 Comments explain choices where code alone cannot convey the reason: database uniqueness, client snapshots, atomic saves, explicit EF state for replacement lines, lazy loading, native modal focus containment, and local startup migrations. Comments avoid narrating obvious assignments.
 
+The [design-decision guide](docs/DESIGN_DECISIONS.md) links these choices to their source files and explains their consequences and extension points.
+
 | Implementation task | Completed |
 | --- | :---: |
 | Domain-separated backend and frontend folders. | ☑ |
@@ -23,7 +25,7 @@ Comments explain choices where code alone cannot convey the reason: database uni
 | Resource-oriented REST routes and consistent errors. | ☑ |
 | SQL persistence and initial migration. | ☑ |
 | Critical unit, database, and API tests. | ☑ |
-| Final reviewer walkthrough and fresh-checkout validation. | ☐ |
+| Final reviewer walkthrough and fresh-checkout validation. | ☑ |
 
 ## Data and persistence
 
@@ -158,5 +160,5 @@ The latest HTTPS check used normal certificate validation for the Angular page, 
 - [x] Trust the development browser HTTPS certificate.
 - [x] Verify setup from a fresh checkout with isolated application data; document the process and shared-environment limits.
 - [x] Complete scoped accessibility, responsive layout, and edge-case review; document skipped screen-reader testing.
-- [ ] Review all source and limitations before GitHub submission.
+- [x] Review all source and limitations before GitHub submission.
 - [ ] Record a 5–10 minute narrated demo covering the working flow, architecture, key decisions, trade-offs, and test evidence.

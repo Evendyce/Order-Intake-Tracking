@@ -41,6 +41,7 @@ export class OrdersList {
           this.loading.set(false);
         },
         error: (e) => {
+          // Retain existing rows on a failed refresh; a failed read is not an empty result set.
           this.error.set(apiError(e));
           this.loading.set(false);
         },
