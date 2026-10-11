@@ -1,0 +1,59 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Sales workspace</p>
+    <h1>Clients</h1>
+    <p class="muted">Manage profiles and availability for new orders.</p>
+  </div>
+  <button [disabled]="busy()" (click)="edit(null)">Add client</button>
+</div>
+<oit-feedback [message]="error()" />
+@if (editing()) {
+  <oit-client-editor
+    [client]="selected()"
+    [busy]="busy()"
+    (saveClient)="save($event)"
+    (cancelEdit)="editing.set(false)"
+  />
+}
+@if (loading()) {
+  <p role="status">Loading clients…</p>
+} @else {
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Availability</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (client of clients(); track client.id) {
+          <tr>
+            <td>{{ client.name }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.isActive ? 'Active' : 'Inactive' }}</td>
+            <td class="actions">
+              <button class="secondary" [disabled]="busy()" (click)="edit(client)">Edit</button
+              ><button class="danger" [disabled]="busy()" (click)="remove(client)">Remove</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">No clients yet. Add one here or create one with an order.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+@if (pendingRemoval(); as client) {
+  <oit-confirm-dialog
+    [title]="'Remove ' + client.name + '?'"
+    message="Clients with orders will be deactivated to preserve history. Unreferenced clients will be deleted."
+    action="Remove client"
+    (confirmed)="confirmRemoval()"
+    (dismissed)="pendingRemoval.set(null)"
+  />
+}

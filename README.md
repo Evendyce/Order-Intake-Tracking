@@ -1,146 +1,178 @@
 # Order Intake & Tracking
 
-A technical assignment for a small internal sales application that records purchase orders, prevents accidental duplicate submissions, and tracks order progress.
+A small internal sales application for recording purchase orders, preventing accidental duplicate submissions, and tracking order progress. Built for the Senior .NET/Angular technical assignment.
 
 ## Project status
 
-The Visual Studio solution contains the generated API, Angular client, and xUnit test projects. The application still contains the weather forecast sample and an empty template test. Order features, LocalDB setup, and business-rule tests are pending.
+The first end-to-end implementation is in place. Backend tests and the Angular production build pass. A browser walkthrough verified order creation, duplicate feedback, modification, status progression, filtering, and client add/edit/deactivation/reactivation.
 
-Progress uses Markdown task lists and task tables with a **Completed** column. `☐` means outstanding; `☑` means complete. Check items only after their acceptance criteria have been verified.
+Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Final delivery, fresh-checkout validation, and the narrated demo remain pending.
 
-- [x] Document the assignment requirements and agreed extensions.
-- [x] Create the initial design and trade-off notes in [SOLUTION.md](SOLUTION.md).
-- [x] Create the Visual Studio solution (`OrderIntake.sln`).
-- [x] Create and include `OIT.Server`, `oit.client`, and `OIT.Tests` in the solution.
-- [x] Configure `.gitignore` for Visual Studio, .NET, Angular, test output, and local database files.
-- [ ] Add the `OIT.Tests` project reference to `OIT.Server`.
-- [ ] Implement and verify the backend and persistence.
-- [ ] Implement and verify the Angular UI.
-- [ ] Complete critical business-rule tests.
-- [ ] Verify setup instructions on a fresh checkout.
-- [ ] Record the narrated demo.
+- [x] Create `OrderIntake.sln` with `OIT.Server`, `oit.client`, and `OIT.Tests`.
+- [x] Configure repository ignores and reference the server from the xUnit project.
+- [x] Implement the order/client API, LocalDB persistence, and initial migration.
+- [x] Implement Angular components with views separated by domain.
+- [x] Verify critical backend logic and API behaviour with tests.
+- [x] Verify the main UI flow in a browser.
+- [ ] Verify the complete Visual Studio HTTPS startup experience and a fresh checkout.
+- [ ] Complete final review and record the narrated demo.
 
-## Technology and project structure
+## Technology and structure
 
 | Area | Technology |
 | --- | --- |
-| Backend | C# and ASP.NET Core, targeting .NET 10 (`net10.0`); controllers, HTTPS, and OpenAPI enabled |
-| Frontend | Angular `^22.2.0`, Angular CLI `^22.2.2`, TypeScript `~6.0.2` as declared in `package.json` |
-| Persistence | Planned: SQL Server LocalDB through Entity Framework Core; not configured yet |
-| Unit tests | xUnit 2.9.3, Visual Studio runner 3.1.4, Microsoft.NET.Test.Sdk 17.14.1 |
-| Development | Visual Studio 2026; three projects in one solution |
-| Node tooling | Node.js 24.21.0 and npm 11.19.0 reported during setup; package manager declares npm 11.19.0 |
-
-Frontend versions above are dependency ranges, not verified installed versions. Commit the generated `package-lock.json` when dependencies are installed to make restoration reproducible. Angular 22 and TypeScript 6 satisfy the assignment's Angular 18+ and TypeScript 5+ minimums.
+| Backend | C#, ASP.NET Core .NET 10, controllers and OpenAPI |
+| Persistence | EF Core 10.0.12, SQL Server LocalDB |
+| Frontend | Angular 22.2, TypeScript 6.0; exact dependencies in `package-lock.json` |
+| Tests | xUnit 2.9.3, ASP.NET Core test host, real LocalDB integration tests |
+| Development | Visual Studio 2026; Node.js 24.21.0, npm 11.19.0 |
 
 ```text
 OrderIntake.sln
 ├── OIT/
-│   ├── OIT.Server/       ASP.NET Core Web API
-│   └── oit.client/       Angular application and Visual Studio .esproj
-└── OIT.Tests/           xUnit test project
+│   ├── OIT.Server/
+│   │   ├── Application/Orders/       Order use cases
+│   │   ├── Contracts/Orders|Clients/ API request/response models
+│   │   ├── Controllers/Orders|Clients/
+│   │   ├── Domain/Orders|Clients/    Entities and business rules
+│   │   ├── Infrastructure/          Consistent API errors
+│   │   ├── Persistence/             EF Core context
+│   │   └── Migrations/              Versioned database schema
+│   └── oit.client/src/app/
+│       ├── domains/orders/          models, services, components, views
+│       ├── domains/clients/         models, services, components, views
+│       └── shared/                  feedback, confirmation dialog, error formatting
+└── OIT.Tests/
+    ├── Orders/                      Business rules and persistence tests
+    └── Api/                         HTTP-level tests
 ```
 
-All three projects exist and are included in `OrderIntake.sln`. The API references the Angular project for template integration; the test project does not yet reference the API.
+## Local setup
 
-## Task list: assignment requirements
+Use Windows with Visual Studio 2026 and the **ASP.NET and web development** workload, .NET 10 SDK, Node.js 24.21.0/npm 11.19.0, and SQL Server LocalDB. The Node.js development workload is optional. Install LocalDB through Visual Studio Installer's individual components if it is unavailable.
 
-| Task | Acceptance criteria | Completed |
-| --- | --- | :---: |
-| Create orders | Accept client reference, client information, and line items with useful validation feedback. | ☐ |
-| Prevent duplicate orders | Repeated external references never create another order, including concurrent submissions. | ☐ |
-| Validate quantities and prices | Quantities are positive whole numbers; unit prices are non-negative. | ☐ |
-| Calculate totals | The server calculates line totals, subtotal, and total. | ☐ |
-| Retrieve orders | Retrieve one order and list orders newest first. | ☐ |
-| Change status | Enforce allowed transitions and explain rejected changes. | ☐ |
-| Submit orders in Angular | Provide a minimal order form with validation and submission feedback. | ☐ |
-| Review orders in Angular | Show the order list and details including totals and status. | ☐ |
-| Test business logic | Cover duplicate handling, validation, calculations, and status rules. | ☐ |
-
-## Task list: agreed extensions
-
-| Task | Acceptance criteria | Completed |
-| --- | --- | :---: |
-| UI status updates | Display the direction of the status flow and expose only allowed actions. | ☐ |
-| Duplicate overview response | Return an overview of the existing order and meaningful differences from the submission. | ☐ |
-| Duplicate popup | Identify the matching reference and offer viewing or modifying the existing order where permitted. | ☐ |
-| Modify orders | Edit Pending orders and recalculate totals on the server; preserve the external reference. | ☐ |
-| LocalDB persistence | Persist clients, orders, and line items across application restarts. | ☐ |
-| Order filtering | Filter by external reference, client, and status while retaining newest-first ordering. | ☐ |
-| Client management | Provide a simple add/edit/remove screen; deactivate clients referenced by orders. | ☐ |
-| Create clients during order intake | Select an existing client or create one with the order; reuse an existing email match. | ☐ |
-
-## Local setup and running
-
-The following describes the generated scaffold. Startup, builds, and tests have not yet been verified; the order application and database are not implemented.
-
-Use Visual Studio 2026 with the **ASP.NET and web development** workload, .NET 10 SDK, and Node.js/npm as listed above. Global Angular CLI 22.2.2 was installed for template creation; project scripts use the locally restored CLI. The Node.js development workload is optional. SQL Server LocalDB installation and connection setup remain pending.
-
-### Restore and start the scaffold
-
-From the repository root, restore the frontend dependencies:
+From the repository root:
 
 ```powershell
-Push-Location OIT/oit.client
-npm install
-Pop-Location
+dotnet tool restore
 dotnet restore OrderIntake.sln
-dotnet dev-certs https --trust
+Push-Location OIT/oit.client
+npm ci
+Pop-Location
 ```
 
-After a lockfile is committed, use `npm ci` for clean dependency restoration.
+Create the app-specific LocalDB instance once, then start it:
 
-Open `OrderIntake.sln` in Visual Studio. In solution startup settings, configure `OIT.Server` and `oit.client` to start, select the server's HTTPS launch profile, and start debugging. Verify this configuration before marking startup complete.
+```powershell
+# Run create only on first setup. Existing instances do not need recreation.
+SqlLocalDB create OITLocalDB
+SqlLocalDB start OITLocalDB
+```
 
-The generated configuration uses:
+The configured database is `OrderIntake` on `(localdb)\OITLocalDB`, using Windows authentication. The API applies committed EF migrations on startup. To apply them explicitly:
+
+```powershell
+dotnet ef database update --project OIT/OIT.Server
+```
+
+The local EF tool is pinned in `dotnet-tools.json`. Database files are not committed. Override the connection with `ConnectionStrings__OrderIntake` if using a different SQL Server instance.
+
+The existing `MSSQLLocalDB` instance on the development machine referenced an uninstalled SQL Server 2019 runtime. A separate `OITLocalDB` instance was created using the installed SQL Server 2025 runtime; the old instance was left untouched.
+
+### Visual Studio startup
+
+1. Open `OrderIntake.sln`.
+2. Trust the development HTTPS certificate with `dotnet dev-certs https --trust` if needed.
+3. Configure `OIT.Server` and `oit.client` as startup projects, with the server's HTTPS launch profile selected.
+4. Start debugging and open the client at `https://localhost:61009`.
 
 | Service | Configured address |
 | --- | --- |
-| Angular development server | `https://localhost:61009` |
+| Client | `https://localhost:61009` |
 | API HTTPS | `https://localhost:7145` |
 | API HTTP | `http://localhost:5214` |
-| OpenAPI document in Development | `https://localhost:7145/openapi/v1.json` |
+| OpenAPI document (Development) | `https://localhost:7145/openapi/v1.json` |
 
-The Angular `prestart` script exports the local HTTPS certificate. The current proxy only covers `/weatherforecast`; order and client routes will need to be added during implementation.
+The Angular `prestart` script exports its local HTTPS certificate. `/api/**` and `/openapi/**` are proxied to the API. The full Visual Studio HTTPS launch workflow still needs verification.
 
-### Tests and frontend build
+HTTPS startup was also verified from the command line by starting `npm start` in the client directory before `dotnet run --project OIT/OIT.Server --launch-profile https`. The client proxy returned the saved order after an API restart and OpenAPI returned HTTP 200. These checks used local certificate-validation bypass in the verification client; trust the developer certificate before browser HTTPS use. If automatic SPA startup cannot resolve `npm.cmd`, start the client separately with `npm start` and confirm Node/npm are on Visual Studio's PATH.
 
-Use **Test > Test Explorer** in Visual Studio to discover and run xUnit tests, or run from the repository root:
+### Verified command-line development workflow
+
+The browser walkthrough used separate local HTTP processes. In one PowerShell terminal at the repo root:
 
 ```powershell
-dotnet test OIT.Tests/OIT.Tests.csproj
+$env:ASPNETCORE_ENVIRONMENT = 'Development'
+dotnet run --project OIT/OIT.Server --no-launch-profile --urls http://localhost:5214
 ```
 
-The existing `UnitTest1.Test1` has no assertions and provides no business-rule coverage. Add the server reference before writing tests against API business logic.
-
-To build the frontend:
+In a second terminal:
 
 ```powershell
+Set-Location OIT/oit.client
+$env:ASPNETCORE_URLS = 'http://localhost:5214'
+npx ng serve --ssl=false --host=127.0.0.1
+```
+
+Open `http://127.0.0.1:61009`. This workflow is for local development only. The API may log a missing HTTPS redirect port when intentionally started with only HTTP. Stop running processes before rebuilding to avoid Windows executable file locks.
+
+## Tests and build
+
+```powershell
+# All backend tests; requires the running OITLocalDB instance.
+dotnet test OIT.Tests/OIT.Tests.csproj
+
+# Business-rule tests only; no database needed.
+dotnet test OIT.Tests/OIT.Tests.csproj --filter 'Category!=Integration'
+
 Push-Location OIT/oit.client
 npm run build
 Pop-Location
 ```
 
-These commands are documented from the scaffold and remain unverified. Frontend test tooling generated by the template also needs verification before documenting a working test workflow.
+Visual Studio **Test > Test Explorer** also runs the xUnit tests. Integration tests create uniquely named `OIT_Tests_*` / `OIT_ApiTests_*` databases, apply migrations, and remove only their own databases during cleanup.
 
-| Setup documentation task | Completed |
+Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases and 12 persistence/HTTP cases); the solution build passed with no warnings/errors and the Angular production build passed. The saved order survived API restarts. `npm audit` reported zero vulnerabilities after removing an unused template dependency. Frontend automated tests remain optional and have not been added; the template's mixed Jasmine/Karma settings were removed.
+
+## Task list: assignment requirements
+
+| Task | Acceptance criteria | Completed |
+| --- | --- | :---: |
+| Create orders | Client information, external reference, and line items accepted with validation. | ☑ |
+| Prevent duplicates | Existing references return the existing order; concurrent submissions create one order. | ☑ |
+| Validate quantities and prices | Positive integer quantities, non-negative prices, supported precision and bounds. | ☑ |
+| Calculate totals | Line totals, subtotal, and total calculated on the server using decimal. | ☑ |
+| Retrieve orders | Order detail and newest-first listing. | ☑ |
+| Change status | Allowed transitions enforced with useful rejection messages. | ☑ |
+| Submit and review in Angular | Order form, list, and details show saved totals and status. | ☑ |
+| Critical backend tests | Business rules, persistence, concurrency, and HTTP validation covered. | ☑ |
+
+## Task list: agreed extensions and development conventions
+
+| Task | Acceptance criteria | Completed |
+| --- | --- | :---: |
+| UI status updates | Directional progression with only allowed next actions. | ☑ |
+| Duplicate overview and popup | Show saved order details, changed fields, and view/modify actions. | ☑ |
+| Modify orders | Pending orders editable; reference fixed; server recalculates totals. | ☑ |
+| LocalDB persistence | Committed migration, persisted clients/orders/items, and database-level uniqueness. | ☑ |
+| Filtering | Reference, client, and status filters, newest first. | ☑ |
+| Client management | Add/edit/remove; referenced clients deactivate; reactivation available through editing. | ☑ |
+| Create client during intake | Reuse normalized email matches or save a new client with the order atomically. | ☑ |
+| Component-based UI | Dedicated line editor, status flow, duplicate dialog, client editor, feedback, and confirmation components. | ☑ |
+| Domain-separated views | Orders and clients have their own models, services, components, and view folders. | ☑ |
+| REST API structure | Resource routes with HTTP verbs and consistent errors. | ☑ |
+| Explain design choices | Brief comments explain uniqueness, snapshots, transaction boundaries, concurrency, and dialog semantics. | ☑ |
+
+## Deliverables and remaining checks
+
+| Task | Completed |
 | --- | :---: |
-| Record selected framework, Node.js/npm, Angular dependency ranges, and Visual Studio version. | ☑ |
-| Document LocalDB installation and connection configuration. | ☐ |
-| Document database creation and migration commands. | ☐ |
-| Document scaffold dependency restoration and API/client startup. | ☑ |
-| Document intended Visual Studio startup configuration. | ☑ |
-| Document backend test command and Test Explorer usage. | ☑ |
-| Verify scaffold restoration, builds, startup, and tests. | ☐ |
-| Validate instructions against a fresh checkout. | ☐ |
+| Application source and tests in the local repository. | ☑ |
+| README setup instructions and SOLUTION design notes updated. | ☑ |
+| Verify full Visual Studio HTTPS startup. | ☐ |
+| Verify restoration and setup on a fresh checkout. | ☐ |
+| Final accessibility, responsive layout, and edge-case review. | ☐ |
+| Final GitHub submission review. | ☐ |
+| Record a 5–10 minute narrated application/architecture demo. | ☐ |
 
-## Deliverables
-
-| Deliverable | Completed |
-| --- | :---: |
-| All application source and tests in this GitHub repository. | ☐ |
-| README with verified local setup and run instructions. | ☐ |
-| SOLUTION with final design decisions and trade-offs. | ☐ |
-| A 5–10 minute narrated demo showing the application, architecture, decisions, and interesting implementations. | ☐ |
-
-Initial design notes are available in [SOLUTION.md](SOLUTION.md). Both documents will be updated as implementation and verification progress.
+See [SOLUTION.md](SOLUTION.md) for business policies, endpoint contracts, trade-offs, and verification details.

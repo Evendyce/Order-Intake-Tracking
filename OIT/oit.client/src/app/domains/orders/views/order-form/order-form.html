@@ -1,0 +1,87 @@
+<a routerLink="/orders">← Orders</a>
+<h1>{{ id ? 'Modify order' : 'New order' }}</h1>
+<oit-feedback [message]="error()" />
+@if (loading()) {
+  <p role="status">Loading order…</p>
+} @else if (!canEdit()) {
+  <p>This order is locked. Only Pending orders can be modified.</p>
+} @else {
+  <form #form="ngForm" (ngSubmit)="save(form)" class="panel">
+    <fieldset [disabled]="busy()">
+      <legend>Order information</legend>
+      <div class="form-grid">
+        <label
+          >External reference
+          <input
+            name="reference"
+            [(ngModel)]="model.externalReference"
+            maxlength="100"
+            required
+            [readonly]="!!id"
+        /></label>
+        <label
+          >Currency
+          <select name="currency" [(ngModel)]="model.currency" required>
+            <option>USD</option>
+            <option>ZAR</option>
+            <option>EUR</option>
+            <option>GBP</option>
+          </select></label
+        >
+      </div>
+      @if (!id) {
+        <label class="checkbox"
+          ><input type="checkbox" name="newClientMode" [(ngModel)]="newClientMode" />Create or match
+          a client by email</label
+        >
+      }
+      @if (newClientMode) {
+        <div class="form-grid">
+          <label
+            >Client name
+            <input name="name" [(ngModel)]="newClient.name" required maxlength="200" /></label
+          ><label
+            >Client email
+            <input
+              type="email"
+              name="email"
+              [(ngModel)]="newClient.email"
+              required
+              email
+              maxlength="254"
+          /></label>
+        </div>
+        <p class="muted">
+          An existing email match reuses the client without changing their profile.
+        </p>
+      } @else {
+        <label
+          >Client
+          <select name="client" [(ngModel)]="model.clientId" required>
+            <option value="">Select a client</option>
+            @for (client of clients(); track client.id) {
+              @if (client.isActive || client.id === model.clientId) {
+                <option [value]="client.id">
+                  {{ client.name }} — {{ client.email }}{{ client.isActive ? '' : ' (inactive)' }}
+                </option>
+              }
+            }
+          </select></label
+        >
+      }
+      <label
+        >Notes
+        <textarea name="notes" [(ngModel)]="model.notes" maxlength="2000" rows="3"></textarea>
+      </label>
+    </fieldset>
+    <oit-line-items-editor [(items)]="model.items" [disabled]="busy()" />
+    <div class="actions">
+      <button [disabled]="busy()">
+        {{ busy() ? 'Saving…' : id ? 'Save changes' : 'Submit order' }}</button
+      ><a routerLink="/orders" class="button secondary">Cancel</a>
+    </div>
+  </form>
+}
+@if (duplicate(); as result) {
+  <oit-duplicate-dialog [result]="result" (dismissed)="duplicate.set(null)" />
+}

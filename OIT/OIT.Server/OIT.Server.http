@@ -1,6 +1,24 @@
 @OIT.Server_HostAddress = http://localhost:5214
 
-GET {{OIT.Server_HostAddress}}/weatherforecast/
+GET {{OIT.Server_HostAddress}}/api/orders
 Accept: application/json
 
-###
+### Filter by reference and status
+GET {{OIT.Server_HostAddress}}/api/orders?reference=DEMO&status=Pending
+Accept: application/json
+
+### List clients, including inactive clients
+GET {{OIT.Server_HostAddress}}/api/clients
+Accept: application/json
+
+### Submit again to see the duplicate overview instead of creating another order
+POST {{OIT.Server_HostAddress}}/api/orders
+Content-Type: application/json
+
+{
+  "externalReference": "DEMO-HTTP-001",
+  "newClient": { "name": "Demo client", "email": "http-demo@example.com" },
+  "currency": "USD",
+  "notes": "Local API walkthrough",
+  "items": [ { "sku": "WIDGET-1", "name": "Widget", "quantity": 3, "unitPrice": 19.99 } ]
+}

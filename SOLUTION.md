@@ -2,56 +2,81 @@
 
 ## Status and scope
 
-This document records the current scaffold and intended design for Order Intake & Tracking. The three projects have been generated and included in the solution. Business behaviour below remains planned; builds, startup, and tests have not yet been verified.
+The first implementation covers order intake, duplicate prevention, order review/editing/status changes, filtering, and client management with automatic client creation. The backend has 33 passing tests and the Angular production build passes. The main flows have been checked in a local browser; final review, fresh-checkout setup, and the video demo are outstanding.
 
-The application serves an internal sales team: create purchase orders, review them, and track status without accidentally duplicating orders when a submission is retried.
+The assignment's required backend/frontend/tests are supplemented by the agreed extensions: UI status changes, duplicate overview and modification flow, LocalDB storage, filters, client CRUD, and automatic client creation. Authentication, deployment, inventory, payments, taxes, and discounts remain outside scope.
 
-The assignment requires an ASP.NET Core backend, Angular frontend, critical backend unit tests, simple local setup, design notes, and a narrated demo. The agreed extensions are UI status updates, duplicate overview and modification flow, LocalDB persistence, filtering, client management, and automatic client creation during order intake.
+## Architecture and conventions
 
-Authentication, deployment, inventory, payments, tax, and discount rules are outside the current scope.
+`OrderIntake.sln` contains `OIT.Server` (ASP.NET Core .NET 10), `oit.client` (Angular 22/TypeScript 6), and `OIT.Tests` (xUnit). The server references the client's `.esproj`; the test project references the server. EF Core and the local EF CLI are pinned to 10.0.12. Frontend dependency resolution is committed in `package-lock.json`.
 
-## Architecture
+Backend folders separate API controllers/contracts, domain entities/rules, order application services, persistence, and error handling. `OrderRules` has no HTTP or database dependency. `OrderService` orchestrates persistence and business rules. Client CRUD is deliberately small and remains in its domain controller; it can move into a service if client workflows grow.
 
-`OrderIntake.sln` contains `OIT/OIT.Server/OIT.Server.csproj`, `OIT/oit.client/oit.client.esproj`, and `OIT.Tests/OIT.Tests.csproj`. The Angular and ASP.NET Core template created separate frontend and backend projects; the xUnit project was added separately. Keep business rules separated from HTTP handling and persistence so they can be tested directly.
+Angular is component-based, with external HTML templates and lazy-loaded standalone views. Each domain owns its `models`, `services`, `components`, and `views`. The root component provides navigation only. Reusable components own line-item editing, status progression, duplicate feedback, client editing, error feedback, and confirmations; screens do not construct HTML strings.
 
-### Scaffold progress
+Comments explain choices where code alone cannot convey the reason: database uniqueness, client snapshots, atomic saves, explicit EF state for replacement lines, lazy loading, native modal focus containment, and local startup migrations. Comments avoid narrating obvious assignments.
 
-| Setup task | Current evidence | Completed |
-| --- | --- | :---: |
-| Create solution and include all three projects | Project entries exist in `OrderIntake.sln`. | ☑ |
-| Create API scaffold | `OIT.Server` targets .NET 10 and uses controllers, HTTPS, and Development OpenAPI. | ☑ |
-| Create Angular scaffold | `oit.client` declares Angular 22.2, CLI 22.2, and TypeScript 6.0 dependency ranges. | ☑ |
-| Create xUnit project | `OIT.Tests` targets .NET 10 and references xUnit 2.9.3 and the Visual Studio runner. | ☑ |
-| Configure repository ignores | Build output, dependencies, editor state, coverage, LocalDB data, and local certificate files are ignored. | ☑ |
-| Reference server from tests | No API project reference currently exists in `OIT.Tests.csproj`. | ☐ |
-| Verify scaffold execution | Restore, build, startup, and tests remain unverified. | ☐ |
-| Replace template sample | Weather forecast code and the empty xUnit test remain. | ☐ |
+| Implementation task | Completed |
+| --- | :---: |
+| Domain-separated backend and frontend folders. | ☑ |
+| Component-based UI and API services. | ☑ |
+| Resource-oriented REST routes and consistent errors. | ☑ |
+| SQL persistence and initial migration. | ☑ |
+| Critical unit, database, and API tests. | ☑ |
+| Final reviewer walkthrough and fresh-checkout validation. | ☐ |
 
-The development environment is Visual Studio 2026, with Node.js 24.21.0 and npm 11.19.0 reported during setup. The selected .NET 10, Angular 22, and TypeScript 6 versions meet the assignment's minimum versions. Installed frontend package versions will be recorded through the lockfile; current `package.json` entries are ranges.
+## Data and persistence
 
-The server references the Angular `.esproj` and configures the SPA proxy to launch `npm start`. The Angular development server uses HTTPS on port 61009; the API HTTPS profile uses port 7145. Its current frontend proxy covers only the weather forecast sample. Order/client routes and the startup configuration still need end-to-end verification.
-
-The generated frontend contains Vitest dependencies, a `karmaConfig` test option, and a Jasmine declaration in the `.esproj`. This tooling needs review before relying on frontend tests; frontend tests remain optional within the assignment.
-
-| Component | Responsibility | Completed |
-| --- | --- | :---: |
-| API endpoints | Accept requests, expose orders and clients, and translate outcomes into consistent responses. | ☐ |
-| Business logic | Validate orders, calculate totals, enforce status and editing rules, and handle repeat submissions. | ☐ |
-| EF Core and LocalDB | Persist data, enforce unique references, and save related changes transactionally. | ☐ |
-| Angular client | Provide order intake, list/detail views, status controls, duplicate feedback, and client management. | ☐ |
-| xUnit tests | Verify critical business rules independently of the UI. | ☐ |
-
-## Data model
-
-| Entity | Planned fields |
+| Entity | Stored data |
 | --- | --- |
-| Order | ID, external reference, client ID, created/updated UTC timestamps, status, currency, notes, line items, subtotal, total |
-| Client | ID, name, email, normalized email, active flag |
-| Line item | ID, order ID, SKU, name, positive integer quantity, decimal unit price, computed line total |
+| Order | ID, original and normalized reference, client ID and name/email snapshot, UTC timestamps, status, currency, notes, totals, version, items |
+| Client | ID, name, original and normalized email, active flag, version |
+| Order line | ID, order ID, position, SKU, name, quantity, unit price, line total |
 
-Client is the application's name for the assignment's illustrative Customer concept. Separate product management is unnecessary: an order stores its line-item details.
+Client is the application's name for the assignment's Customer concept. Line items retain their own product details; no product catalogue is needed. Client name/email snapshots preserve order history when a client profile changes. An explicit Pending order edit refreshes the snapshot from the selected client.
 
-## Status flow and editing
+EF Core uses SQL Server LocalDB with unique indexes for normalized references and emails, a creation-date index for listing, restricted client deletion, and cascading line deletion. `decimal(18,2)` stores money. GUID version fields are optimistic concurrency tokens on orders and clients; clients submit the version they last loaded, and stale writes receive HTTP 409.
+
+The database is `OrderIntake` on the dedicated `(localdb)\OITLocalDB` instance. The development machine's default instance referenced a missing old runtime, so a new instance was created without altering the old one. README documents reproducible creation using the installed LocalDB version.
+
+The API applies committed migrations on startup for a short local setup path. A production deployment should apply migrations separately. LocalDB is Windows-specific and adds installation work; this is an accepted trade-off for persistent relational storage.
+
+## REST endpoints
+
+| Method | Resource | Behaviour |
+| --- | --- | --- |
+| GET | `/api/orders` | List newest first; optional `reference`, `clientId`, `status` filters. |
+| GET | `/api/orders/{id}` | Retrieve details, totals, version, edit eligibility, and allowed statuses. |
+| POST | `/api/orders` | Create or return the duplicate overview. |
+| PUT | `/api/orders/{id}` | Replace Pending order details using its version; reference fixed. |
+| PATCH | `/api/orders/{id}/status` | Apply one allowed status transition using its version. |
+| GET | `/api/clients` | List client profiles, including inactive clients. |
+| GET | `/api/clients/{id}` | Retrieve a client profile. |
+| POST | `/api/clients` | Add a unique client email. |
+| PUT | `/api/clients/{id}` | Edit profile/active flag using its version. |
+| DELETE | `/api/clients/{id}?version={version}` | Delete an unreferenced client or deactivate a referenced client. |
+
+Created resources return HTTP 201 and a Location header. Invalid input returns HTTP 400 validation feedback; missing records return 404; invalid transitions, stale versions, and uniqueness conflicts return 409. Business and persistence errors are translated into Problem Details with helpful messages. Unexpected errors are logged and return a generic 500 message. Status values are strings; numeric enum values are rejected in JSON.
+
+The generated `.http` file includes sample order/client requests. Development OpenAPI is available at `/openapi/v1.json`. The Angular dev proxy forwards `/api/**` and `/openapi/**` to the backend.
+
+## Repeat submissions and duplicate overview
+
+The external reference is the duplicate key; similar clients/products alone are not duplicates. References are trimmed and normalized to uppercase for case-insensitive matching, while the readable original is retained.
+
+| Outcome | Response |
+| --- | --- |
+| New reference | 201 with `{ isDuplicate: false, overview, differences: [] }`. |
+| Existing reference with equivalent content | 200 with `{ isDuplicate: true, overview, differences: [] }`. |
+| Existing reference with changed content | 409 with `{ isDuplicate: true, overview, differences }`; saved data unchanged. |
+
+The overview contains order ID/reference, client snapshot, timestamps, status, currency, notes, totals, version, line details, edit eligibility, and allowed transitions. Differences identify client, currency, notes, or line items. Email and currency matching is normalized; notes/SKU/name are trimmed; line order is meaningful. Server IDs/timestamps/status are not part of submitted-content equivalence. Matching an existing client by email does not overwrite its name.
+
+A duplicate popup explains the matching reference, displays the saved overview and differences, and offers viewing or modifying the saved order. Modification opens the saved values for explicit review; retry content is never silently applied. Comparison is against current saved order content, so a replay of an older pre-edit payload may produce a conflict.
+
+A database unique index guarantees only one order per reference across simultaneous requests. A single `SaveChanges` transaction saves a new client and order together. When a SQL unique-key race occurs, the rolled-back context is cleared and the reference/client is resolved again, with at most three attempts. A duplicate does not create a new client. Tests verify five concurrent submissions produce one order and one client.
+
+## Status and editing rules
 
 ```text
 Pending -> Confirmed -> Fulfilled
@@ -59,97 +84,69 @@ Pending -> Confirmed -> Fulfilled
    +-> Cancelled <-+
 ```
 
-Orders start Pending. Pending orders may become Confirmed or Cancelled; Confirmed orders may become Fulfilled or Cancelled. Fulfilled and Cancelled are terminal states. Pending cannot move directly to Fulfilled.
+Orders start Pending. Pending may become Confirmed or Cancelled; Confirmed may become Fulfilled or Cancelled. Fulfilled and Cancelled are terminal. Repeating the current status is a no-op, preserving timestamp/version. Invalid transitions receive a useful 409 message.
 
-The API is authoritative. The UI displays the progression and allowed actions, and explains why a rejected transition is invalid. Requesting the current status is a successful no-op that does not update timestamps.
+The UI shows the progression and only exposes allowed actions supplied by the API. Cancellation requires confirmation through a reusable modal component. The server enforces transitions independently of the UI.
 
-Commercial details (client, line items, currency, and notes) may be modified while Pending. Confirmed and terminal orders cannot be edited. The external reference remains fixed. Editing recalculates totals on the server.
-
-## Repeat submissions and duplicate overview
-
-An existing external reference identifies a duplicate. Matching clients or line items alone do not identify duplicate orders.
-
-Trim external references and compare them case-insensitively. Preserve a readable reference and enforce uniqueness on its normalized value in the database. Duplicate detection must be atomic: checking first in application code is insufficient when submissions arrive concurrently.
-
-| Submission outcome | Intended behaviour |
-| --- | --- |
-| New reference | Create the order and return HTTP 201 with its identifier and details. |
-| Existing reference with equivalent content | Return HTTP 200 with the existing order overview and a duplicate indicator; create no new records. |
-| Existing reference with different content | Return HTTP 409 with an explanatory message, the existing overview, and meaningful differences; leave the order unchanged. |
-
-The overview includes order ID, external reference, client summary, creation timestamp, current status, currency, subtotal, total, and whether editing is allowed. Differences identify changed client, currency, notes, or line items without treating server-generated IDs and timestamps as submitted content.
-
-The Angular popup explains that the reference already exists, displays the overview and differences, and offers **View existing order** and, when allowed, **Modify existing order**. A retry never implicitly edits an order. Modification is a separate, explicit save action.
-
-Detailed request/response contracts and content-equivalence rules will be finalized during implementation.
+Only Pending orders can change client, items, currency, or notes. The external reference stays fixed. Edits require an existing client selection, recalculate totals, replace old lines, and update timestamp/version. The server explicitly tracks replacement lines as Added because their application-generated GUIDs would otherwise be interpreted as existing rows by EF change tracking.
 
 ## Validation and money
 
-- [ ] Require a non-empty external reference, valid client information, currency, and at least one line item.
-- [ ] Reject zero, negative, or fractional quantities and negative prices.
-- [ ] Use C# `decimal` for money and calculate totals exclusively on the server.
-- [ ] Define supported currencies, price precision, rounding mode, and calculation limits explicitly.
-- [ ] Calculate each line total from quantity and unit price; calculate subtotal from line totals.
-- [ ] Set total equal to subtotal because taxes and discounts are outside the current scope.
-- [ ] Return consistent validation errors with messages suitable for the UI.
+| Rule | Policy |
+| --- | --- |
+| Order reference | Required, maximum 100 characters. |
+| Client | Exactly one existing ID or new client profile; name and valid email required. |
+| Currency | USD, ZAR, EUR, or GBP. All supported currencies use two decimal places. |
+| Lines | Between 1 and 100; required SKU/name with length bounds. |
+| Quantity | Whole number from 1 through 100000. Fractional JSON quantities fail binding. |
+| Unit price | Decimal from 0 through 1000000, with at most two decimal places. |
+| Line total | Quantity × unit price, rounded to two decimals using AwayFromZero. |
+| Subtotal / total | Sum of server line totals; total equals subtotal because tax/discount rules are out of scope. |
 
-The rounding policy is intentionally pending rather than implying that every currency has two decimal places. Client-side previews, if added, remain informational.
+The server uses C# decimal rather than binary floating point. Client-supplied totals are not part of the input contract. Supported ranges bound totals within database precision. The UI displays persisted totals after saving and provides input feedback; the API remains authoritative.
 
-## Client management and automatic creation
+## Client lifecycle and filtering
 
-The client screen supports adding, editing, and removing clients. Clients referenced by orders are deactivated instead of physically deleted, preserving order relationships. Inactive clients remain visible on historical orders but cannot be selected for new orders. Unreferenced clients may be deleted.
+Clients can be added, edited, deactivated, reactivated, and removed. Removal physically deletes only clients without orders; referenced clients deactivate so order relationships remain valid. Inactive clients cannot be used for new orders, but their historical orders remain visible. A Pending order may keep its existing inactive client during edits; it cannot be reassigned to another inactive client.
 
-The order form supports selecting an existing client or entering a new client's information. Trim email addresses and compare them case-insensitively through a unique normalized email value. If an email already exists, reuse that client without silently changing their name. An inactive email match requires explicit reactivation rather than creating a second client.
+New-client intake trims and normalizes email for matching. An existing active email match is reused without changing its profile. Inactive matches require explicit reactivation. New client/order insertion is atomic; failed inserts roll back together.
 
-Validate and resolve duplicate order references before creating a client. When a new client is needed, save the client and order in the same transaction so a failed submission does not leave an orphan client. Concurrent matching client submissions must also respect email uniqueness.
+Order filters use a case-insensitive reference substring, exact client ID, and status. Results sort by creation timestamp descending, then ID descending for deterministic ties. Listing is unpaginated for this small assignment; pagination would be needed with growing data volume.
 
-Historical behaviour when a client's details change still needs a decision: display the current client record or retain a client snapshot on the order. This will be finalized before implementing client edits.
+## Verification and progress
 
-## Persistence and filtering
+Verified on 11 October 2026:
 
-Use EF Core with SQL Server LocalDB to retain data across restarts. Include migrations and document local database initialization. Enforce unique normalized order references and client emails at the database level.
-
-Filter orders by external reference, client, and status. Apply filters before sorting results by creation timestamp descending, with a deterministic ID tie-breaker. Keep the initial UI minimal.
-
-LocalDB adds installation and database setup work compared with in-memory storage and makes the intended local environment Windows-specific. This is an accepted trade-off for persistent relational storage; clear setup documentation is part of the deliverable.
-
-### Source control
-
-Keep solution/project files, application configuration, migrations, and dependency lockfiles in Git. The root `.gitignore` covers nested .NET build directories, Angular dependencies and caches, Visual Studio user state, test output, local environment overrides, LocalDB database files, and private certificate files. The Angular template's nested `.gitignore` also remains in place. Shared `.vscode` launch and task files are retained.
-
-Database files will not be distributed through Git; migrations and documented initialization will reproduce the schema. EF Core packages, migrations, and connection configuration have not yet been added.
-
-## Verification task list
-
-| Verification | Expected result | Completed |
+| Check | Evidence | Completed |
 | --- | --- | :---: |
-| Valid order creation | Correct initial status, client link, line totals, and overall totals. | ☐ |
-| Identical repeat submission | Existing overview returned; order count unchanged. | ☐ |
-| Conflicting repeat submission | Clear conflict and differences; existing data unchanged. | ☐ |
-| Concurrent repeated reference | Exactly one order created. | ☐ |
-| Quantity and price validation | Invalid values rejected with useful messages. | ☐ |
-| Decimal calculations | Totals follow the documented precision and rounding policy. | ☐ |
-| Status transitions | Valid changes succeed; invalid changes fail; terminal states remain terminal. | ☐ |
-| Order modification | Pending edits recalculate totals; locked orders reject edits. | ☐ |
-| Listing and filtering | Correct matches, newest first, with deterministic ordering. | ☐ |
-| Automatic client creation | New client and order saved together; email matches reused. | ☐ |
-| Failure during creation | Transaction leaves no partially created order or client. | ☐ |
-| Client removal | Referenced clients deactivated and historical orders remain accessible. | ☐ |
-| Persistence | Orders and clients survive an application restart. | ☐ |
-| UI walkthrough | Intake, duplicate popup, modification, status updates, filters, and client CRUD work end to end. | ☐ |
+| Business rules | 21 passing cases for decimal totals, bounds, validation, allowed/invalid/no-op statuses, duplicate comparisons, and editing locks. | ☑ |
+| Database behaviour | 6 passing cases for duplicate outcomes, simultaneous submissions, no orphan client on duplicate, line replacement/stale versions, client removal, and snapshots. | ☑ |
+| HTTP contracts | 6 passing cases for creation/Location, duplicate 200/409, fractional/invalid quantities/prices, filtering/status rules, email validation, and client CRUD. | ☑ |
+| Database schema | Initial EF migration successfully applied to LocalDB. | ☑ |
+| Angular build | Production build passes; domain views are lazy chunks. | ☑ |
+| Browser order flow | Create, duplicate conflict popup, modify saved order, recalculate totals, confirm status, show cancellation confirmation, and filter matching/nonmatching orders. | ☑ |
+| Browser client flow | Add, edit, deactivate referenced client, and reactivate. | ☑ |
+| Dependency audit | `npm audit` reports zero vulnerabilities after removing unused `jest-editor-support`. | ☑ |
+| Restart persistence | The saved demo order and totals were retrieved after API restarts, including through the HTTPS client proxy. | ☑ |
+| Command-line HTTPS startup | Starting the client separately with `npm start`, then the API HTTPS launch profile, served proxied orders and the OpenAPI document. | ☑ |
+| Full IDE HTTPS launch | Visual Studio launch walkthrough and browser certificate trust still outstanding. | ☐ |
+| Fresh-checkout setup | Not yet performed. | ☐ |
+| Final accessibility/responsive review | Not yet completed. | ☐ |
 
-Use xUnit for calculations, validation, status rules, editing rules, and repeat-submission outcomes. Database uniqueness, transactions, and concurrent writes need integration verification against the actual storage provider. Frontend automated tests are optional in the assignment; the full UI flow still requires verification.
+Integration tests run against uniquely named LocalDB databases and remove their own databases in teardown; they never delete the app database. Unit-only runs can exclude the `Integration` trait. Frontend automated tests are optional and not yet added. The generated mixed Jasmine/Karma configuration was removed in favour of the Angular Vitest tooling already declared in the template.
 
-## Documentation and demo task list
+The browser check used the documented local HTTP workflow. Synthetic demo clients and `DEMO-001` remain in the development database; they are not seeds or committed application data.
 
-- [x] Record the initial scope, design, and trade-offs.
-- [ ] Finalize currency/rounding, content-equivalence, and historical client-detail policies.
-- [x] Record the actual project structure, framework selections, and source-control conventions.
-- [ ] Record the implemented order/client API contracts.
-- [ ] Update README with exact dependencies, database setup, startup, and test instructions.
-- [ ] Record test results and remaining limitations.
+The HTTPS command-line check used certificate bypass in the local verification client, not a browser security-warning bypass. The development certificate is not yet trusted for browser HTTPS. The template's automatic SPA launch could not resolve `npm.cmd` in the agent environment; starting the client separately worked. README documents that fallback and the need for Node/npm on Visual Studio's PATH.
+
+## Remaining delivery tasks
+
+- [x] Implement agreed domains, components, REST routes, comments, and business policies.
+- [x] Add migration, critical tests, and dependency lockfile.
+- [x] Update setup and design documentation with verified results.
+- [x] Verify application restart persistence and separate-process HTTPS startup.
+- [ ] Verify full Visual Studio HTTPS startup and browser certificate trust.
 - [ ] Verify setup from a fresh checkout.
-- [ ] Prepare a 5–10 minute demo covering new orders, duplicate handling, totals, status rules, filtering, and clients.
-- [ ] Include an architecture walkthrough, design decisions, trade-offs, and test evidence in the demo.
-
-The assignment estimates approximately four hours but allows more time. The additional features increase scope; complete the core order flow and its tests before polishing extensions.
+- [ ] Complete final accessibility, responsive layout, and edge-case review.
+- [ ] Review all source and limitations before GitHub submission.
+- [ ] Record a 5–10 minute narrated demo covering the working flow, architecture, key decisions, trade-offs, and test evidence.

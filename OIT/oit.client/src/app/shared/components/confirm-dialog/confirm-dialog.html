@@ -1,0 +1,9 @@
+<dialog #dialog aria-labelledby="confirm-title" (cancel)="dismissed.emit()">
+  <h2 id="confirm-title">{{ title }}</h2>
+  <p>{{ message }}</p>
+  <div class="actions">
+    <button type="button" class="secondary" autofocus (click)="dismissed.emit()">
+      Keep unchanged</button
+    ><button type="button" class="danger" (click)="confirmed.emit()">{{ action }}</button>
+  </div>
+</dialog>

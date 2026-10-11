@@ -1,0 +1,31 @@
+<section aria-label="Order status">
+  <ol class="status-flow">
+    @for (step of steps; track step) {
+      <li
+        [class.current]="order.status === step"
+        [attr.aria-current]="order.status === step ? 'step' : null"
+      >
+        {{ step }}
+      </li>
+    }
+  </ol>
+  @if (order.status === 'Cancelled') {
+    <p class="badge">Cancelled — final status</p>
+  }
+  <p class="muted">Pending → Confirmed → Fulfilled. Cancellation is allowed before fulfilment.</p>
+  <div class="actions">
+    @for (status of order.allowedStatuses; track status) {
+      <button
+        type="button"
+        [disabled]="busy"
+        [class.danger]="status === 'Cancelled'"
+        (click)="changeStatus.emit(status)"
+      >
+        {{ status === 'Cancelled' ? 'Cancel order' : 'Mark ' + status }}
+      </button>
+    }
+    @if (!order.allowedStatuses.length) {
+      <p>No further status changes are available.</p>
+    }
+  </div>
+</section>

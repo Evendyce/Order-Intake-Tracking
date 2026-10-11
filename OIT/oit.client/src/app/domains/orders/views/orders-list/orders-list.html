@@ -1,0 +1,74 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Sales workspace</p>
+    <h1>Orders</h1>
+    <p class="muted">Latest submissions first.</p>
+  </div>
+  <a routerLink="/orders/new" class="button">New order</a>
+</div>
+<oit-feedback [message]="error()" />
+<form class="panel filters" (ngSubmit)="load()">
+  <label
+    >Reference
+    <input name="reference" [(ngModel)]="filters.reference" placeholder="Search reference"
+  /></label>
+  <label
+    >Client
+    <select name="client" [(ngModel)]="filters.clientId">
+      <option value="">All clients</option>
+      @for (client of clients(); track client.id) {
+        <option [value]="client.id">
+          {{ client.name }}{{ client.isActive ? '' : ' (inactive)' }}
+        </option>
+      }
+    </select></label
+  >
+  <label
+    >Status
+    <select name="status" [(ngModel)]="filters.status">
+      <option value="">All statuses</option>
+      <option>Pending</option>
+      <option>Confirmed</option>
+      <option>Fulfilled</option>
+      <option>Cancelled</option>
+    </select></label
+  >
+  <button [disabled]="loading()">Apply filters</button
+  ><button type="button" class="secondary" (click)="reset()" [disabled]="loading()">Reset</button>
+</form>
+@if (loading()) {
+  <p role="status">Loading orders…</p>
+} @else {
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Client</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of orders(); track order.id) {
+          <tr>
+            <td>
+              <a [routerLink]="['/orders', order.id]">{{ order.externalReference }}</a>
+            </td>
+            <td>{{ order.clientName }}</td>
+            <td>{{ order.createdAt | date: 'short' }}</td>
+            <td>
+              <span class="badge">{{ order.status }}</span>
+            </td>
+            <td>{{ order.total | currency: order.currency }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">No orders match. Create an order or change the filters.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

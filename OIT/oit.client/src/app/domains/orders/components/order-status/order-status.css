@@ -1,0 +1,18 @@
+.status-flow {
+  display: flex;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+  flex-wrap: wrap;
+}
+.status-flow li {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  color: var(--muted);
+}
+.status-flow li.current {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}

@@ -1,0 +1,28 @@
+<form
+  #form="ngForm"
+  class="panel"
+  (ngSubmit)="form.valid && saveClient.emit({ name: name, email: email, isActive: isActive })"
+>
+  <h2>{{ client ? 'Edit client' : 'Add client' }}</h2>
+  <fieldset [disabled]="busy">
+    <legend>Client profile</legend>
+    <div class="form-grid">
+      <label>Name <input name="name" [(ngModel)]="name" required maxlength="200" /></label
+      ><label
+        >Email <input type="email" name="email" [(ngModel)]="email" required email maxlength="254"
+      /></label>
+    </div>
+    @if (client) {
+      <label class="checkbox"
+        ><input type="checkbox" name="active" [(ngModel)]="isActive" />Active (available for new
+        orders)</label
+      >
+    }
+  </fieldset>
+  <div class="actions">
+    <button [disabled]="busy || form.invalid">{{ busy ? 'Saving…' : 'Save client' }}</button
+    ><button type="button" class="secondary" [disabled]="busy" (click)="cancelEdit.emit()">
+      Cancel
+    </button>
+  </div>
+</form>

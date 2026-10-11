@@ -1,0 +1,71 @@
+<a routerLink="/orders">← Orders</a>
+<oit-feedback [message]="error()" />
+@if (order(); as order) {
+  <div class="page-heading">
+    <h1>{{ order.externalReference }}</h1>
+    <div class="actions">
+      <button class="secondary" (click)="load()" [disabled]="busy()">Reload</button>
+      @if (order.canEdit) {
+        <a class="button" [routerLink]="['/orders', order.id, 'edit']">Modify order</a>
+      }
+    </div>
+  </div>
+  <div class="panel">
+    <oit-order-status [order]="order" [busy]="busy()" (changeStatus)="status($event)" />
+  </div>
+  <dl class="panel summary">
+    <dt>Client</dt>
+    <dd>{{ order.clientName }} · {{ order.clientEmail }}</dd>
+    <dt>Created</dt>
+    <dd>{{ order.createdAt | date: 'medium' }}</dd>
+    <dt>Updated</dt>
+    <dd>{{ order.updatedAt | date: 'medium' }}</dd>
+    <dt>Notes</dt>
+    <dd>{{ order.notes || 'None' }}</dd>
+  </dl>
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Unit price</th>
+          <th>Line total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of order.items; track $index) {
+          <tr>
+            <td>{{ item.sku }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unitPrice | currency: order.currency }}</td>
+            <td>{{ item.lineTotal | currency: order.currency }}</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4">Subtotal</th>
+          <td>{{ order.subtotal | currency: order.currency }}</td>
+        </tr>
+        <tr>
+          <th colspan="4">Total</th>
+          <td>{{ order.total | currency: order.currency }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+} @else if (!error()) {
+  <p role="status">Loading order…</p>
+}
+@if (confirmingCancellation()) {
+  <oit-confirm-dialog
+    title="Cancel this order?"
+    message="Cancellation is final. The order will remain available for review."
+    action="Cancel order"
+    (confirmed)="cancel()"
+    (dismissed)="confirmingCancellation.set(false)"
+  />
+}

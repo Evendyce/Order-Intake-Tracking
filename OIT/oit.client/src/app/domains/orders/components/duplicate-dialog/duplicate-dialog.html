@@ -1,0 +1,40 @@
+<dialog #dialog aria-labelledby="duplicate-title" (cancel)="dismissed.emit()">
+  <h2 id="duplicate-title">This reference already exists</h2>
+  <p>
+    No new order was created. Reference
+    <strong>{{ result.overview.externalReference }}</strong> matches an existing order.
+  </p>
+  <dl class="summary">
+    <dt>Client</dt>
+    <dd>{{ result.overview.clientName }} · {{ result.overview.clientEmail }}</dd>
+    <dt>Created</dt>
+    <dd>{{ result.overview.createdAt | date: 'medium' }}</dd>
+    <dt>Status</dt>
+    <dd>{{ result.overview.status }}</dd>
+    <dt>Total</dt>
+    <dd>{{ result.overview.total | currency: result.overview.currency }}</dd>
+  </dl>
+  @if (result.differences.length) {
+    <p>Different from your submission:</p>
+    <ul>
+      @for (difference of result.differences; track difference) {
+        <li>{{ difference }}</li>
+      }
+    </ul>
+  } @else {
+    <p>Your submission matches the existing order.</p>
+  }
+  <div class="actions">
+    <a class="button" [routerLink]="['/orders', result.overview.id]">View existing order</a>
+    @if (result.overview.canEdit) {
+      <a class="button secondary" [routerLink]="['/orders', result.overview.id, 'edit']"
+        >Modify existing order</a
+      >
+    }
+    <button type="button" class="secondary" autofocus (click)="dismissed.emit()">Close</button>
+  </div>
+  <p class="muted">
+    Modification opens the saved order for review. Submitted differences are not applied
+    automatically.
+  </p>
+</dialog>

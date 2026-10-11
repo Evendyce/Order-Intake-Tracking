@@ -1,0 +1,58 @@
+<fieldset [disabled]="disabled">
+  <legend>Line items</legend>
+  @for (item of items; track $index; let index = $index) {
+    <div class="line-row">
+      <label
+        >SKU
+        <input
+          [(ngModel)]="item.sku"
+          maxlength="80"
+          required
+          [ngModelOptions]="{ standalone: true }"
+      /></label>
+      <label
+        >Name
+        <input
+          [(ngModel)]="item.name"
+          maxlength="200"
+          required
+          [ngModelOptions]="{ standalone: true }"
+      /></label>
+      <label
+        >Quantity
+        <input
+          type="number"
+          [(ngModel)]="item.quantity"
+          min="1"
+          max="100000"
+          step="1"
+          required
+          [ngModelOptions]="{ standalone: true }"
+      /></label>
+      <label
+        >Unit price
+        <input
+          type="number"
+          [(ngModel)]="item.unitPrice"
+          min="0"
+          max="1000000"
+          step="0.01"
+          required
+          [ngModelOptions]="{ standalone: true }"
+      /></label>
+      <button
+        type="button"
+        class="secondary"
+        [disabled]="items.length === 1"
+        (click)="remove(index)"
+        [attr.aria-label]="'Remove line ' + (index + 1)"
+      >
+        Remove
+      </button>
+    </div>
+  }
+  <button type="button" class="secondary" [disabled]="items.length >= 100" (click)="add()">
+    Add line item
+  </button>
+  <p class="muted">Totals are calculated by the server when the order is saved.</p>
+</fieldset>
