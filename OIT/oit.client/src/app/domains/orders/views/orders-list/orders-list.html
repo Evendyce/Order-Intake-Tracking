@@ -38,7 +38,7 @@
 </form>
 @if (loading()) {
   <p role="status">Loading orders…</p>
-} @else {
+} @else if (!error()) {
   <div class="panel table-wrap">
     <table>
       <thead>

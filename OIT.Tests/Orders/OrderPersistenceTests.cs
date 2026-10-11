@@ -12,7 +12,7 @@ namespace OIT.Tests.Orders;
 // Real SQL Server tests exercise uniqueness and transactions that mocks cannot prove.
 public class OrderPersistenceTests : IAsyncLifetime
 {
-    private readonly string connection = $"Server=(localdb)\\OITLocalDB;Database=OIT_Tests_{Guid.NewGuid():N};Trusted_Connection=True;TrustServerCertificate=True";
+    private readonly string connection = $"Server=(localdb)\\OITDevelopment;Database=OIT_Tests_{Guid.NewGuid():N};Trusted_Connection=True;TrustServerCertificate=True";
     private IntakeDbContext Context() => new(new DbContextOptionsBuilder<IntakeDbContext>().UseSqlServer(connection).Options);
     public async Task InitializeAsync() { await using var db = Context(); await db.Database.MigrateAsync(); }
     public async Task DisposeAsync() { await using var db = Context(); await db.Database.EnsureDeletedAsync(); }

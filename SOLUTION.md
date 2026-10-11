@@ -37,7 +37,9 @@ Client is the application's name for the assignment's Customer concept. Line ite
 
 EF Core uses SQL Server LocalDB with unique indexes for normalized references and emails, a creation-date index for listing, restricted client deletion, and cascading line deletion. `decimal(18,2)` stores money. GUID version fields are optimistic concurrency tokens on orders and clients; clients submit the version they last loaded, and stale writes receive HTTP 409.
 
-The database is `OrderIntake` on the dedicated `(localdb)\OITLocalDB` instance. The development machine's default instance referenced a missing old runtime, so a new instance was created without altering the old one. README documents reproducible creation using the installed LocalDB version.
+The database is `OrderIntake` on the dedicated `(localdb)\OITDevelopment` instance. The previous app instance's registry registration was visible to the agent's command environment but absent from Visual Studio's environment, even under the same Windows account. A new instance was created through Visual Studio's environment and confirmed visible to both. The existing database was restored from a verified backup and checked with `DBCC CHECKDB`; previous instances were preserved.
+
+The API uses a standard LocalDB instance-name connection. Temporary named-pipe configuration, keep-alive connections, and build hooks were removed. Initial Angular GET requests retry transient proxy/network failures during server startup, without replaying writes.
 
 The API applies committed migrations on startup for a short local setup path. A production deployment should apply migrations separately. LocalDB is Windows-specific and adds installation work; this is an accepted trade-off for persistent relational storage.
 
@@ -124,16 +126,22 @@ Verified on 11 October 2026:
 | HTTP contracts | 6 passing cases for creation/Location, duplicate 200/409, fractional/invalid quantities/prices, filtering/status rules, email validation, and client CRUD. | ☑ |
 | Database schema | Initial EF migration successfully applied to LocalDB. | ☑ |
 | Angular build | Production build passes; domain views are lazy chunks. | ☑ |
+| Frontend recovery | 22 Vitest cases cover transient read recovery, bounded failure, non-retryable errors, write safety, cancellation, orders-page loading, and client-list read/write error recovery. | ☑ |
 | Browser order flow | Create, duplicate conflict popup, modify saved order, recalculate totals, confirm status, show cancellation confirmation, and filter matching/nonmatching orders. | ☑ |
-| Browser client flow | Add, edit, deactivate referenced client, and reactivate. | ☑ |
+| Browser client flow | Add, edit, delete unused client, deactivate referenced client, reactivate, and reject duplicate email without hiding loaded rows. | ☑ |
+| Core end-to-end review | Isolated browser/API checks covered duplicate outcomes, terminal statuses, client policies, filters, concurrent edits, and restart persistence. See [verification report](docs/END_TO_END.md). | ☑ |
 | Dependency audit | `npm audit` reports zero vulnerabilities after removing unused `jest-editor-support`. | ☑ |
 | Restart persistence | The saved demo order and totals were retrieved after API restarts, including through the HTTPS client proxy. | ☑ |
 | Command-line HTTPS startup | Starting the client separately with `npm start`, then the API HTTPS launch profile, served proxied orders and the OpenAPI document. | ☑ |
-| Full IDE HTTPS launch | Visual Studio launch walkthrough and browser certificate trust still outstanding. | ☐ |
+| IDE database connection | Visual Studio build succeeded and connected by instance name after LocalDB was stopped, automatically starting it and reading the preserved order. | ☑ |
+| Visual Studio HTTPS startup | User confirmed the saved order appeared automatically after startup without a manual refresh. | ☑ |
+| Browser certificate trust | Development certificate is not yet trusted. | ☐ |
 | Fresh-checkout setup | Not yet performed. | ☐ |
 | Final accessibility/responsive review | Not yet completed. | ☐ |
 
-Integration tests run against uniquely named LocalDB databases and remove their own databases in teardown; they never delete the app database. Unit-only runs can exclude the `Integration` trait. Frontend automated tests are optional and not yet added. The generated mixed Jasmine/Karma configuration was removed in favour of the Angular Vitest tooling already declared in the template.
+Integration tests run against uniquely named LocalDB databases and remove their own databases in teardown; they never delete the app database. Unit-only runs can exclude the `Integration` trait. Frontend tests use Angular's Vitest runner; the generated mixed Jasmine/Karma configuration was removed.
+
+Angular can serve the page before the API completes startup migrations. A shared HTTP interceptor retries only `/api/` GET requests for network errors and HTTP 502/503/504, with at most eight retries spaced one second apart. Writes and other failures are never retried. The orders page waits for both order rows and client filter options, keeps its loading indicator during retries, and cancels reads on navigation. List-loading failures show an error without claiming that the database contains no matching records.
 
 The browser check used the documented local HTTP workflow. Synthetic demo clients and `DEMO-001` remain in the development database; they are not seeds or committed application data.
 
@@ -145,7 +153,8 @@ The HTTPS command-line check used certificate bypass in the local verification c
 - [x] Add migration, critical tests, and dependency lockfile.
 - [x] Update setup and design documentation with verified results.
 - [x] Verify application restart persistence and separate-process HTTPS startup.
-- [ ] Verify full Visual Studio HTTPS startup and browser certificate trust.
+- [x] Verify full Visual Studio HTTPS startup and core browser workflows.
+- [ ] Trust the development browser HTTPS certificate.
 - [ ] Verify setup from a fresh checkout.
 - [ ] Complete final accessibility, responsive layout, and edge-case review.
 - [ ] Review all source and limitations before GitHub submission.

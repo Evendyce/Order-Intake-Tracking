@@ -17,7 +17,7 @@
 }
 @if (loading()) {
   <p role="status">Loading clients…</p>
-} @else {
+} @else if (!loadFailed()) {
   <div class="panel table-wrap">
     <table>
       <thead>

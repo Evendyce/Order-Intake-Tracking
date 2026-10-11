@@ -14,7 +14,8 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Implement Angular components with views separated by domain.
 - [x] Verify critical backend logic and API behaviour with tests.
 - [x] Verify the main UI flow in a browser.
-- [ ] Verify the complete Visual Studio HTTPS startup experience and a fresh checkout.
+- [x] Verify the complete Visual Studio HTTPS startup experience and core end-to-end workflows.
+- [ ] Verify setup on a fresh checkout and browser certificate trust.
 - [ ] Complete final review and record the narrated demo.
 
 ## Technology and structure
@@ -65,11 +66,11 @@ Create the app-specific LocalDB instance once, then start it:
 
 ```powershell
 # Run create only on first setup. Existing instances do not need recreation.
-SqlLocalDB create OITLocalDB
-SqlLocalDB start OITLocalDB
+SqlLocalDB create OITDevelopment
+SqlLocalDB start OITDevelopment
 ```
 
-The configured database is `OrderIntake` on `(localdb)\OITLocalDB`, using Windows authentication. The API applies committed EF migrations on startup. To apply them explicitly:
+The configured database is `OrderIntake` on `(localdb)\OITDevelopment`, using Windows authentication. The API applies committed EF migrations on startup. To apply them explicitly:
 
 ```powershell
 dotnet ef database update --project OIT/OIT.Server
@@ -77,7 +78,7 @@ dotnet ef database update --project OIT/OIT.Server
 
 The local EF tool is pinned in `dotnet-tools.json`. Database files are not committed. Override the connection with `ConnectionStrings__OrderIntake` if using a different SQL Server instance.
 
-The existing `MSSQLLocalDB` instance on the development machine referenced an uninstalled SQL Server 2019 runtime. A separate `OITLocalDB` instance was created using the installed SQL Server 2025 runtime; the old instance was left untouched.
+Run the instance creation command in a normal Windows terminal. The development machine uses `OITDevelopment`, registered through Visual Studio's environment and visible to both the IDE and command-line tooling. The previous instances were left untouched, and the existing `OrderIntake` database was backed up, verified, and restored into this instance. The API uses the standard instance-name connection; no named-pipe settings or build-time preparation are required.
 
 ### Visual Studio startup
 
@@ -93,7 +94,7 @@ The existing `MSSQLLocalDB` instance on the development machine referenced an un
 | API HTTP | `http://localhost:5214` |
 | OpenAPI document (Development) | `https://localhost:7145/openapi/v1.json` |
 
-The Angular `prestart` script exports its local HTTPS certificate. `/api/**` and `/openapi/**` are proxied to the API. The full Visual Studio HTTPS launch workflow still needs verification.
+The Angular `prestart` script exports its local HTTPS certificate. `/api/**` and `/openapi/**` are proxied to the API. Initial API reads retry temporary connection failures while the server starts; browser certificate trust remains outstanding.
 
 HTTPS startup was also verified from the command line by starting `npm start` in the client directory before `dotnet run --project OIT/OIT.Server --launch-profile https`. The client proxy returned the saved order after an API restart and OpenAPI returned HTTP 200. These checks used local certificate-validation bypass in the verification client; trust the developer certificate before browser HTTPS use. If automatic SPA startup cannot resolve `npm.cmd`, start the client separately with `npm start` and confirm Node/npm are on Visual Studio's PATH.
 
@@ -119,20 +120,23 @@ Open `http://127.0.0.1:61009`. This workflow is for local development only. The 
 ## Tests and build
 
 ```powershell
-# All backend tests; requires the running OITLocalDB instance.
+# All backend tests; requires the running OITDevelopment instance.
 dotnet test OIT.Tests/OIT.Tests.csproj
 
 # Business-rule tests only; no database needed.
 dotnet test OIT.Tests/OIT.Tests.csproj --filter 'Category!=Integration'
 
 Push-Location OIT/oit.client
+npm test -- --watch=false
 npm run build
 Pop-Location
 ```
 
 Visual Studio **Test > Test Explorer** also runs the xUnit tests. Integration tests create uniquely named `OIT_Tests_*` / `OIT_ApiTests_*` databases, apply migrations, and remove only their own databases during cleanup.
 
-Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases and 12 persistence/HTTP cases); the solution build passed with no warnings/errors and the Angular production build passed. The saved order survived API restarts. `npm audit` reported zero vulnerabilities after removing an unused template dependency. Frontend automated tests remain optional and have not been added; the template's mixed Jasmine/Karma settings were removed.
+Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases and 12 persistence/HTTP cases), plus **20 frontend tests** covering read recovery, retry limits, immediate errors, write safety, cancellation, and orders-page loading/error states. The solution build passed with no warnings/errors and the Angular production build passed. The saved order survived API restarts. `npm audit` reported zero vulnerabilities after removing an unused template dependency. Frontend tests use Angular's Vitest runner; the template's mixed Jasmine/Karma settings were removed.
+
+API reads retry network errors and HTTP 502/503/504 up to eight times, one second apart, so normal startup delays retain a loading state and recover automatically. Other errors and all writes are reported immediately. Persistent read failures show an error after retries rather than a misleading empty-list message.
 
 ## Task list: assignment requirements
 
@@ -146,6 +150,8 @@ Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases
 | Change status | Allowed transitions enforced with useful rejection messages. | ☑ |
 | Submit and review in Angular | Order form, list, and details show saved totals and status. | ☑ |
 | Critical backend tests | Business rules, persistence, concurrency, and HTTP validation covered. | ☑ |
+| Startup recovery | Bounded read retries, loading states, outage feedback, and frontend tests. | ☑ |
+| End-to-end verification | Browser workflows, live API rejections, persistence after restart, 33 backend tests, and 22 frontend tests. See [verification report](docs/END_TO_END.md). | ☑ |
 
 ## Task list: agreed extensions and development conventions
 
@@ -169,7 +175,8 @@ Verified on 11 October 2026: **33 backend tests passed** (21 business-rule cases
 | --- | :---: |
 | Application source and tests in the local repository. | ☑ |
 | README setup instructions and SOLUTION design notes updated. | ☑ |
-| Verify full Visual Studio HTTPS startup. | ☐ |
+| Verify full Visual Studio HTTPS startup. | ☑ |
+| Trust the development browser HTTPS certificate. | ☐ |
 | Verify restoration and setup on a fresh checkout. | ☐ |
 | Final accessibility, responsive layout, and edge-case review. | ☐ |
 | Final GitHub submission review. | ☐ |

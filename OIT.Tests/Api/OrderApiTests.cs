@@ -5,7 +5,9 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using OIT.Server.Contracts.Clients;
 using OIT.Server.Contracts.Orders;
 using OIT.Server.Persistence;
@@ -14,7 +16,7 @@ namespace OIT.Tests.Api;
 
 public class OrderApiTests : IAsyncLifetime
 {
-    private readonly string connection = $"Server=(localdb)\\OITLocalDB;Database=OIT_ApiTests_{Guid.NewGuid():N};Trusted_Connection=True;TrustServerCertificate=True";
+    private readonly string connection = $"Server=(localdb)\\OITDevelopment;Database=OIT_ApiTests_{Guid.NewGuid():N};Trusted_Connection=True;TrustServerCertificate=True";
     private WebApplicationFactory<Program> factory = null!;
     private HttpClient http = null!;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
@@ -25,6 +27,10 @@ public class OrderApiTests : IAsyncLifetime
             .ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
                 new Dictionary<string, string?> { ["ConnectionStrings:OrderIntake"] = connection })));
         http = factory.CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
+        // Refuse to send write requests if startup ever bypasses the test connection override.
+        using var scope = factory.Services.CreateScope();
+        var database = scope.ServiceProvider.GetRequiredService<IntakeDbContext>().Database.GetDbConnection().Database;
+        Assert.Equal(new SqlConnectionStringBuilder(connection).InitialCatalog, database);
         return Task.CompletedTask;
     }
     public async Task DisposeAsync()
