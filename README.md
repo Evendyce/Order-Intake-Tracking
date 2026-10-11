@@ -27,7 +27,7 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Verify all 25 edge-case and recovery scenarios in an isolated setup.
 - [x] Add clearer required-field indicators and retest the affected forms.
 - [x] Complete the scoped accessibility review with the skipped screen-reader check documented.
-- [ ] Complete the final GitHub submission review.
+- [x] Complete the final GitHub submission review.
 - [ ] Record the narrated application/architecture demo.
 
 ## Technology and structure
@@ -200,7 +200,7 @@ After the required-field update, **25 frontend tests passed** across five files 
 | Edge-case and recovery review: all 25 scenarios passed; 22 frontend tests passed again. See [review report](docs/EDGE_CASE_REVIEW.md). | ☑ |
 | Add clearer required-field indicators and retest the affected forms. | ☑ |
 | Finalize scoped accessibility review; document intentionally skipped screen-reader testing. | ☑ |
-| Final GitHub submission review. | ☐ |
+| Final GitHub submission review. | ☑ |
 | Record a 5–10 minute narrated application/architecture demo. | ☐ |
 
 See [SOLUTION.md](SOLUTION.md) for business policies, endpoint contracts, trade-offs, and verification details.
