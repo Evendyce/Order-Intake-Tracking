@@ -6,12 +6,14 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { FieldFeedback } from '../../../../shared/components/field-feedback/field-feedback';
+import { FieldRules } from '../../../../shared/forms/field-rules';
 import { Client } from '../../models/client';
 
 @Component({
   selector: 'oit-client-editor',
-  imports: [FormsModule],
+  imports: [FormsModule, FieldFeedback, FieldRules],
   templateUrl: './client-editor.html',
   changeDetection: ChangeDetectionStrategy.Default,
 })
@@ -23,6 +25,11 @@ export class ClientEditor {
   name = '';
   email = '';
   isActive = true;
+  save(form: NgForm) {
+    form.control.markAllAsTouched();
+    if (form.valid && !this.busy)
+      this.saveClient.emit({ name: this.name, email: this.email, isActive: this.isActive });
+  }
   ngOnChanges(changes: SimpleChanges) {
     if (changes['client']) {
       this.name = this.client?.name ?? '';

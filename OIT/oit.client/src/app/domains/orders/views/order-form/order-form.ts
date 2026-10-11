@@ -8,11 +8,21 @@ import { Client } from '../../../clients/models/client';
 import { LineItemsEditor } from '../../components/line-items-editor/line-items-editor';
 import { DuplicateDialog } from '../../components/duplicate-dialog/duplicate-dialog';
 import { Feedback } from '../../../../shared/components/feedback/feedback';
+import { FieldFeedback } from '../../../../shared/components/field-feedback/field-feedback';
+import { FieldRules } from '../../../../shared/forms/field-rules';
 import { apiError } from '../../../../shared/errors/api-error';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  imports: [FormsModule, RouterLink, LineItemsEditor, DuplicateDialog, Feedback],
+  imports: [
+    FormsModule,
+    RouterLink,
+    LineItemsEditor,
+    DuplicateDialog,
+    Feedback,
+    FieldFeedback,
+    FieldRules,
+  ],
   templateUrl: './order-form.html',
   changeDetection: ChangeDetectionStrategy.Default,
 })
@@ -84,12 +94,10 @@ export class OrderForm {
     };
     this.busy.set(true);
     if (this.id)
-      this.api
-        .update(this.id, input)
-        .subscribe({
-          next: (o) => this.router.navigate(['/orders', o.id]),
-          error: (e) => this.failed(e),
-        });
+      this.api.update(this.id, input).subscribe({
+        next: (o) => this.router.navigate(['/orders', o.id]),
+        error: (e) => this.failed(e),
+      });
     else
       this.api.create(input).subscribe({
         next: (result) => {

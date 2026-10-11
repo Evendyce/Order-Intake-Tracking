@@ -23,7 +23,7 @@ Check Orders, New/Edit Order, Order Detail, Clients, and their dialogs wherever 
 | Activate links/buttons with Enter and buttons with Space; use keyboard controls for selects. | Actions work without a mouse. | Passed | | ☑ |
 | Open duplicate and confirmation dialogs using the keyboard. | Focus enters the dialog and remains inside while it is open. | Passed | | ☑ |
 | Close dialogs using their controls and Escape where dismissal is supported. | Focus returns to the triggering control; dismissal makes no unintended changes. | Passed | | ☑ |
-| Inspect input labels and required-field instructions. | Fields have meaningful labels; required inputs are identifiable. | Issue found | No clear indicators as to which Fields are Required. Perhaps proper validation indicators added to Inputs? | ☑ |
+| Inspect input labels and required-field instructions. | Fields have meaningful labels; required inputs are identifiable. | Passed | Original finding resolved: Required labels, Optional notes, and field-specific validation added. Codex retested order/client forms on 11 October 2026; details below. | ☑ |
 | Submit an incomplete form and an invalid email. | Errors identify the affected fields and explain how to correct them. | Passed | | ☑ |
 | Save a record, trigger an error, and change a status. | Feedback is clear and does not rely only on colour. | Passed | | ☑ |
 | Read the screens with a screen reader, if available. | Headings, control names, table headers, dialogs, and feedback are understandable. |  Not checked | Screen-reader testing skipped | ☐ |
@@ -78,6 +78,22 @@ Performed by Codex on 11 October 2026 against main commit `fa29f7d` using the Co
 
 ## Issue log
 
+### Required-field finding: resolved and retested
+
+Codex retested the working-tree update on 11 October 2026 using the in-app browser and the isolated OITEdgeReview database/HTTPS services. The original reviewer and commit above refer to the initial review.
+
+| Task | Recorded result | Completed |
+| --- | --- | :---: |
+| Clear field requirements | Order/client/line-item inputs show Required; Notes show Optional; forms explain the labels. | ☑ |
+| Empty submission | Specific errors appear for missing fields. Untouched forms initially show no errors. | ☑ |
+| Invalid values | Whitespace names, invalid email, fractional quantity, and excessive price precision show field-level explanations. | ☑ |
+| Accessible feedback | Invalid inputs expose aria-invalid and aria-describedby links to their error messages. Errors remain outside labels so control names remain stable. Screen-reader announcement behaviour was not tested. | ☑ |
+| Correction and saving | Errors cleared after correction; REQUIRED-001 saved at 59.97, and a new client saved and reopened for editing without stale errors. | ☑ |
+| Responsive retest | Order/client validation layout fitted a 375px viewport without horizontal overflow. | ☑ |
+| Automated regression checks | All 25 frontend tests passed across five files; production Angular build passed. | ☑ |
+
+The required-field issue is resolved. This retest does not constitute a new Lighthouse scan or a screen-reader test. All writes remained in the isolated database.
+
 Copy this block for each finding:
 
 ```text
@@ -95,12 +111,12 @@ Retest result:
 
 ## Review completion
 
-- [ ] Every applicable check has a recorded outcome.
-- [ ] Issues have reproduction steps and a recorded resolution or remaining limitation.
-- [ ] Fixes have been retested on the affected screens and viewport sizes.
-- [ ] Remaining limitations are reflected in the submission documentation.
-- [ ] The final accessibility/responsive/edge-case review task is marked complete only after the recorded results support it.
+- [x] Every performed check has a recorded outcome, and intentionally skipped checks are identified.
+- [x] Issues have reproduction details and a recorded resolution or remaining limitation.
+- [x] Fixes have been retested on the affected screens and viewport sizes.
+- [x] Remaining limitations are reflected in the submission documentation.
+- [x] The scoped accessibility/responsive/edge-case review task is marked complete based on the recorded results.
 
-Overall outcome: ____________________
+Overall outcome: Passed for the documented scope after the required-field fix and retest.
 
-Remaining issues / limitations: ____________________
+Remaining issues / limitations: Screen-reader testing intentionally skipped; Lighthouse was not rerun after the fix. The LocalDB shell startup issue is documented in the edge-case report. Performance diagnostics remain separate from this review.

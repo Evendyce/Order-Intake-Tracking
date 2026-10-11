@@ -2,44 +2,88 @@
   <legend>Line items</legend>
   @for (item of items; track $index; let index = $index) {
     <div class="line-row">
-      <label
-        >SKU
-        <input
-          [(ngModel)]="item.sku"
-          maxlength="80"
-          required
-          [ngModelOptions]="{ standalone: true }"
-      /></label>
-      <label
-        >Name
-        <input
-          [(ngModel)]="item.name"
-          maxlength="200"
-          required
-          [ngModelOptions]="{ standalone: true }"
-      /></label>
-      <label
-        >Quantity
-        <input
-          type="number"
-          [(ngModel)]="item.quantity"
-          min="1"
-          max="100000"
-          step="1"
-          required
-          [ngModelOptions]="{ standalone: true }"
-      /></label>
-      <label
-        >Unit price
-        <input
-          type="number"
-          [(ngModel)]="item.unitPrice"
-          min="0"
-          max="1000000"
-          step="0.01"
-          required
-          [ngModelOptions]="{ standalone: true }"
-      /></label>
+      <div class="form-field">
+        <label
+          ><span>SKU <span class="field-requirement">(Required)</span></span>
+          <input
+            #sku="ngModel"
+            oitFieldRules="text"
+            [attr.aria-invalid]="sku.invalid && (sku.touched || submitted)"
+            [attr.aria-describedby]="'line-' + index + '-sku-error'"
+            [(ngModel)]="item.sku"
+            maxlength="80"
+            required
+            [ngModelOptions]="{ standalone: true }" /></label
+        ><oit-field-feedback
+          [control]="sku"
+          field="SKU"
+          [errorId]="'line-' + index + '-sku-error'"
+          [submitted]="submitted"
+        />
+      </div>
+      <div class="form-field">
+        <label
+          ><span>Name <span class="field-requirement">(Required)</span></span>
+          <input
+            #name="ngModel"
+            oitFieldRules="text"
+            [attr.aria-invalid]="name.invalid && (name.touched || submitted)"
+            [attr.aria-describedby]="'line-' + index + '-name-error'"
+            [(ngModel)]="item.name"
+            maxlength="200"
+            required
+            [ngModelOptions]="{ standalone: true }" /></label
+        ><oit-field-feedback
+          [control]="name"
+          field="Name"
+          [errorId]="'line-' + index + '-name-error'"
+          [submitted]="submitted"
+        />
+      </div>
+      <div class="form-field">
+        <label
+          ><span>Quantity <span class="field-requirement">(Required)</span></span>
+          <input
+            #quantity="ngModel"
+            oitFieldRules="quantity"
+            [attr.aria-invalid]="quantity.invalid && (quantity.touched || submitted)"
+            [attr.aria-describedby]="'line-' + index + '-quantity-error'"
+            type="number"
+            [(ngModel)]="item.quantity"
+            min="1"
+            max="100000"
+            step="1"
+            required
+            [ngModelOptions]="{ standalone: true }" /></label
+        ><oit-field-feedback
+          [control]="quantity"
+          field="Quantity"
+          [errorId]="'line-' + index + '-quantity-error'"
+          [submitted]="submitted"
+        />
+      </div>
+      <div class="form-field">
+        <label
+          ><span>Unit price <span class="field-requirement">(Required)</span></span>
+          <input
+            #price="ngModel"
+            oitFieldRules="price"
+            [attr.aria-invalid]="price.invalid && (price.touched || submitted)"
+            [attr.aria-describedby]="'line-' + index + '-price-error'"
+            type="number"
+            [(ngModel)]="item.unitPrice"
+            min="0"
+            max="1000000"
+            step="0.01"
+            required
+            [ngModelOptions]="{ standalone: true }" /></label
+        ><oit-field-feedback
+          [control]="price"
+          field="Unit price"
+          [errorId]="'line-' + index + '-price-error'"
+          [submitted]="submitted"
+        />
+      </div>
       <button
         type="button"
         class="secondary"

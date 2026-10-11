@@ -7,27 +7,53 @@
   <p>This order is locked. Only Pending orders can be modified.</p>
 } @else {
   <form #form="ngForm" (ngSubmit)="save(form)" class="panel">
+    <p class="muted">Fields labelled Required must be completed. Notes are optional.</p>
     <fieldset [disabled]="busy()">
       <legend>Order information</legend>
       <div class="form-grid">
-        <label
-          >External reference
-          <input
-            name="reference"
-            [(ngModel)]="model.externalReference"
-            maxlength="100"
-            required
-            [readonly]="!!id"
-        /></label>
-        <label
-          >Currency
-          <select name="currency" [(ngModel)]="model.currency" required>
-            <option>USD</option>
-            <option>ZAR</option>
-            <option>EUR</option>
-            <option>GBP</option>
-          </select></label
-        >
+        <div class="form-field">
+          <label
+            ><span>External reference <span class="field-requirement">(Required)</span></span
+            ><input
+              #reference="ngModel"
+              [attr.aria-invalid]="reference.invalid && (reference.touched || form.submitted)"
+              aria-describedby="reference-error"
+              oitFieldRules="text"
+              name="reference"
+              [(ngModel)]="model.externalReference"
+              maxlength="100"
+              required
+              [readonly]="!!id" /></label
+          ><oit-field-feedback
+            [control]="reference"
+            field="External reference"
+            errorId="reference-error"
+            [submitted]="form.submitted"
+          />
+        </div>
+        <div class="form-field">
+          <label
+            ><span>Currency <span class="field-requirement">(Required)</span></span
+            ><select
+              #currency="ngModel"
+              [attr.aria-invalid]="currency.invalid && (currency.touched || form.submitted)"
+              aria-describedby="currency-error"
+              name="currency"
+              [(ngModel)]="model.currency"
+              required
+            >
+              <option>USD</option>
+              <option>ZAR</option>
+              <option>EUR</option>
+              <option>GBP</option>
+            </select></label
+          ><oit-field-feedback
+            [control]="currency"
+            field="Currency"
+            errorId="currency-error"
+            [submitted]="form.submitted"
+          />
+        </div>
       </div>
       @if (!id) {
         <label class="checkbox"
@@ -37,44 +63,88 @@
       }
       @if (newClientMode) {
         <div class="form-grid">
-          <label
-            >Client name
-            <input name="name" [(ngModel)]="newClient.name" required maxlength="200" /></label
-          ><label
-            >Client email
-            <input
-              type="email"
-              name="email"
-              [(ngModel)]="newClient.email"
-              required
-              email
-              maxlength="254"
-          /></label>
+          <div class="form-field">
+            <label
+              ><span>Client name <span class="field-requirement">(Required)</span></span
+              ><input
+                #clientName="ngModel"
+                [attr.aria-invalid]="clientName.invalid && (clientName.touched || form.submitted)"
+                aria-describedby="client-name-error"
+                oitFieldRules="text"
+                name="name"
+                [(ngModel)]="newClient.name"
+                required
+                maxlength="200" /></label
+            ><oit-field-feedback
+              [control]="clientName"
+              field="Client name"
+              errorId="client-name-error"
+              [submitted]="form.submitted"
+            />
+          </div>
+          <div class="form-field">
+            <label
+              ><span>Client email <span class="field-requirement">(Required)</span></span
+              ><input
+                #clientEmail="ngModel"
+                [attr.aria-invalid]="clientEmail.invalid && (clientEmail.touched || form.submitted)"
+                aria-describedby="client-email-error"
+                type="email"
+                name="email"
+                [(ngModel)]="newClient.email"
+                required
+                email
+                maxlength="254" /></label
+            ><oit-field-feedback
+              [control]="clientEmail"
+              field="Client email"
+              errorId="client-email-error"
+              [submitted]="form.submitted"
+            />
+          </div>
         </div>
         <p class="muted">
           An existing email match reuses the client without changing their profile.
         </p>
       } @else {
-        <label
-          >Client
-          <select name="client" [(ngModel)]="model.clientId" required>
-            <option value="">Select a client</option>
-            @for (client of clients(); track client.id) {
-              @if (client.isActive || client.id === model.clientId) {
-                <option [value]="client.id">
-                  {{ client.name }} — {{ client.email }}{{ client.isActive ? '' : ' (inactive)' }}
-                </option>
+        <div class="form-field">
+          <label
+            ><span>Client <span class="field-requirement">(Required)</span></span
+            ><select
+              #clientSelect="ngModel"
+              [attr.aria-invalid]="clientSelect.invalid && (clientSelect.touched || form.submitted)"
+              aria-describedby="client-select-error"
+              name="client"
+              [(ngModel)]="model.clientId"
+              required
+            >
+              <option value="">Select a client</option>
+              @for (client of clients(); track client.id) {
+                @if (client.isActive || client.id === model.clientId) {
+                  <option [value]="client.id">
+                    {{ client.name }} — {{ client.email }}{{ client.isActive ? '' : ' (inactive)' }}
+                  </option>
+                }
               }
-            }
-          </select></label
-        >
+            </select></label
+          ><oit-field-feedback
+            [control]="clientSelect"
+            field="Client"
+            errorId="client-select-error"
+            [submitted]="form.submitted"
+          />
+        </div>
       }
       <label
-        >Notes
-        <textarea name="notes" [(ngModel)]="model.notes" maxlength="2000" rows="3"></textarea>
+        ><span>Notes <span class="field-requirement">(Optional)</span></span
+        ><textarea name="notes" [(ngModel)]="model.notes" maxlength="2000" rows="3"></textarea>
       </label>
     </fieldset>
-    <oit-line-items-editor [(items)]="model.items" [disabled]="busy()" />
+    <oit-line-items-editor
+      [(items)]="model.items"
+      [disabled]="busy()"
+      [submitted]="form.submitted"
+    />
     <div class="actions">
       <button [disabled]="busy()">
         {{ busy() ? 'Saving…' : id ? 'Save changes' : 'Submit order' }}</button

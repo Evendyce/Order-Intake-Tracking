@@ -12,7 +12,7 @@ The separate `main-ui-overhaul` branch is reserved for a personal UI redesign. W
 
 The first end-to-end implementation is in place. Backend tests and the Angular production build pass. A browser walkthrough verified order creation, duplicate feedback, modification, status progression, filtering, and client add/edit/deactivation/reactivation.
 
-Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Fresh-checkout validation, the recorded responsive-layout checks, and all 25 edge-case/recovery scenarios passed. Required-field indicators, final delivery review, and the narrated demo remain pending. Screen-reader testing was intentionally skipped.
+Progress uses Markdown task lists and tables with a **Completed** column: `☐` outstanding, `☑` complete. Fresh-checkout validation, the recorded responsive-layout checks, and all 25 edge-case/recovery scenarios passed. Required-field indicators and field-level validation feedback are implemented and retested. Final delivery review and the narrated demo remain pending. Screen-reader testing was intentionally skipped.
 
 - [x] Create `OrderIntake.sln` with `OIT.Server`, `oit.client`, and `OIT.Tests`.
 - [x] Configure repository ignores and reference the server from the xUnit project.
@@ -25,8 +25,8 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Verify setup on a fresh checkout with an empty database and newly exported Angular certificates.
 - [x] Complete the recorded responsive-layout checks.
 - [x] Verify all 25 edge-case and recovery scenarios in an isolated setup.
-- [ ] Add clearer required-field indicators and retest the affected forms.
-- [ ] Complete the accessibility review with the skipped screen-reader check documented.
+- [x] Add clearer required-field indicators and retest the affected forms.
+- [x] Complete the scoped accessibility review with the skipped screen-reader check documented.
 - [ ] Complete the final GitHub submission review.
 - [ ] Record the narrated application/architecture demo.
 
@@ -154,6 +154,8 @@ Verified on 11 October 2026, including a fresh clone: **33 backend tests passed*
 
 API reads retry network errors and HTTP 502/503/504 up to eight times, one second apart, so normal startup delays retain a loading state and recover automatically. Other errors and all writes are reported immediately. Persistent read failures show an error after retries rather than a misleading empty-list message.
 
+After the required-field update, **25 frontend tests passed** across five files and the production Angular build passed. Browser checks verified inline validation, clearing errors after correction, successful order/client saves, and a 375px layout. Mandatory inputs show Required, Notes show Optional, and errors are linked to inputs through accessible descriptions. See [UI review checklist](docs/UI_REVIEW_CHECKLIST.md) for the retest record and the intentionally skipped screen-reader check.
+
 ## Task list: assignment requirements
 
 | Task | Acceptance criteria | Completed |
@@ -196,8 +198,8 @@ API reads retry network errors and HTTP 502/503/504 up to eight times, one secon
 | Verify restoration and setup on a fresh checkout. | ☑ |
 | Responsive-layout review: recorded viewport, zoom, table, dialog, and long-content checks passed. See [UI checklist](docs/UI_REVIEW_CHECKLIST.md). | ☑ |
 | Edge-case and recovery review: all 25 scenarios passed; 22 frontend tests passed again. See [review report](docs/EDGE_CASE_REVIEW.md). | ☑ |
-| Add clearer required-field indicators and retest the affected forms. | ☐ |
-| Finalize accessibility review; document intentionally skipped screen-reader testing. | ☐ |
+| Add clearer required-field indicators and retest the affected forms. | ☑ |
+| Finalize scoped accessibility review; document intentionally skipped screen-reader testing. | ☑ |
 | Final GitHub submission review. | ☐ |
 | Record a 5–10 minute narrated application/architecture demo. | ☐ |
 

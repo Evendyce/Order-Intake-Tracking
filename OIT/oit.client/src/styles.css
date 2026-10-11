@@ -87,6 +87,29 @@ button:disabled {
 .muted {
   color: var(--muted);
 }
+.field-requirement {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.field-error {
+  display: block;
+  color: #812626;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+.field-error:empty {
+  display: none;
+}
+.form-field {
+  margin-bottom: 1rem;
+}
+.form-field label {
+  margin-bottom: 0.4rem;
+}
+[aria-invalid='true'] {
+  border-color: #a52424;
+}
 label {
   display: flex;
   flex-direction: column;

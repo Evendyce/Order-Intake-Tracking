@@ -1,16 +1,48 @@
-<form
-  #form="ngForm"
-  class="panel"
-  (ngSubmit)="form.valid && saveClient.emit({ name: name, email: email, isActive: isActive })"
->
+<form #form="ngForm" class="panel" (ngSubmit)="save(form)">
   <h2>{{ client ? 'Edit client' : 'Add client' }}</h2>
+  <p class="muted">Fields labelled Required must be completed.</p>
   <fieldset [disabled]="busy">
     <legend>Client profile</legend>
     <div class="form-grid">
-      <label>Name <input name="name" [(ngModel)]="name" required maxlength="200" /></label
-      ><label
-        >Email <input type="email" name="email" [(ngModel)]="email" required email maxlength="254"
-      /></label>
+      <div class="form-field">
+        <label
+          ><span>Name <span class="field-requirement">(Required)</span></span
+          ><input
+            #nameField="ngModel"
+            [attr.aria-invalid]="nameField.invalid && (nameField.touched || form.submitted)"
+            aria-describedby="profile-name-error"
+            oitFieldRules="text"
+            name="name"
+            [(ngModel)]="name"
+            required
+            maxlength="200" /></label
+        ><oit-field-feedback
+          [control]="nameField"
+          field="Name"
+          errorId="profile-name-error"
+          [submitted]="form.submitted"
+        />
+      </div>
+      <div class="form-field">
+        <label
+          ><span>Email <span class="field-requirement">(Required)</span></span
+          ><input
+            #emailField="ngModel"
+            [attr.aria-invalid]="emailField.invalid && (emailField.touched || form.submitted)"
+            aria-describedby="profile-email-error"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            required
+            email
+            maxlength="254" /></label
+        ><oit-field-feedback
+          [control]="emailField"
+          field="Email"
+          errorId="profile-email-error"
+          [submitted]="form.submitted"
+        />
+      </div>
     </div>
     @if (client) {
       <label class="checkbox"
@@ -20,7 +52,8 @@
     }
   </fieldset>
   <div class="actions">
-    <button [disabled]="busy || form.invalid">{{ busy ? 'Saving…' : 'Save client' }}</button
+    <!-- Keep submission available so missing fields can be explained instead of silently blocking Save. -->
+    <button [disabled]="busy">{{ busy ? 'Saving…' : 'Save client' }}</button
     ><button type="button" class="secondary" [disabled]="busy" (click)="cancelEdit.emit()">
       Cancel
     </button>

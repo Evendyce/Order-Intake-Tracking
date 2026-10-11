@@ -34,4 +34,4 @@ The full backend test suite was not rerun during this review: its integration fi
 
 ## Remaining review work
 
-The required-field indicator issue recorded in Accessibility remains outstanding. Screen-reader testing is intentionally skipped. These edge-case passes do not mark the complete accessibility/submission review finished, or establish accessibility compliance. Performance diagnostics and the final GitHub submission review remain separate tasks.
+The required-field indicator issue was outstanding at the time of this pass and was subsequently resolved and retested; see the [UI checklist](UI_REVIEW_CHECKLIST.md#required-field-finding-resolved-and-retested). Screen-reader testing is intentionally skipped. These edge-case passes do not establish accessibility compliance. Performance diagnostics and the final GitHub submission review remain separate tasks.
