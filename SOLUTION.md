@@ -135,7 +135,7 @@ Verified on 11 October 2026:
 | Command-line HTTPS startup | Starting the client separately with `npm start`, then the API HTTPS launch profile, served proxied orders and the OpenAPI document. | ☑ |
 | IDE database connection | Visual Studio build succeeded and connected by instance name after LocalDB was stopped, automatically starting it and reading the preserved order. | ☑ |
 | Visual Studio HTTPS startup | User confirmed the saved order appeared automatically after startup without a manual refresh. | ☑ |
-| Browser certificate trust | Development certificate is not yet trusted. | ☐ |
+| Browser certificate trust | Trusted the exported Angular certificate with `dotnet dev-certs https --trust`; browser opened HTTPS Orders without a warning page, and client/API/proxy requests passed normal certificate validation. | ☑ |
 | Fresh-checkout setup | Not yet performed. | ☐ |
 | Final accessibility/responsive review | Not yet completed. | ☐ |
 
@@ -145,7 +145,7 @@ Angular can serve the page before the API completes startup migrations. A shared
 
 The browser check used the documented local HTTP workflow. Synthetic demo clients and `DEMO-001` remain in the development database; they are not seeds or committed application data.
 
-The HTTPS command-line check used certificate bypass in the local verification client, not a browser security-warning bypass. The development certificate is not yet trusted for browser HTTPS. The template's automatic SPA launch could not resolve `npm.cmd` in the agent environment; starting the client separately worked. README documents that fallback and the need for Node/npm on Visual Studio's PATH.
+The latest HTTPS check used normal certificate validation for the Angular page, API, and proxy. The Angular PEM certificate was valid but initially absent from the current user's trusted root store; trusting the matching ASP.NET Core development certificate resolved the warning. The template's automatic SPA launch could not resolve `npm.cmd` in the agent environment; starting the client separately worked. README documents that fallback and the need for Node/npm on Visual Studio's PATH.
 
 ## Remaining delivery tasks
 
@@ -154,7 +154,7 @@ The HTTPS command-line check used certificate bypass in the local verification c
 - [x] Update setup and design documentation with verified results.
 - [x] Verify application restart persistence and separate-process HTTPS startup.
 - [x] Verify full Visual Studio HTTPS startup and core browser workflows.
-- [ ] Trust the development browser HTTPS certificate.
+- [x] Trust the development browser HTTPS certificate.
 - [ ] Verify setup from a fresh checkout.
 - [ ] Complete final accessibility, responsive layout, and edge-case review.
 - [ ] Review all source and limitations before GitHub submission.

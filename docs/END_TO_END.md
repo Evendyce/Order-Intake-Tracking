@@ -60,4 +60,4 @@ The client list's `loadFailed` flag was incorrectly set by the save error handle
 | E2E-003 | Cancelled | USD | 0.00 | ☑ |
 | E2E-004 | Pending | USD | 10.00 | ☑ |
 
-This pass covers the core business workflows. A fresh-checkout installation, comprehensive accessibility/responsive review, and browser certificate trust remain separate delivery checks. The user confirmed the normal Visual Studio HTTPS startup loaded the saved development order automatically before this isolated pass.
+This pass covers the core business workflows. A fresh-checkout installation and comprehensive accessibility/responsive review remain separate delivery checks. The user confirmed the normal Visual Studio HTTPS startup loaded the saved development order automatically before this isolated pass. A subsequent certificate check on the same date trusted the matching development certificate and verified client/API/proxy HTTPS requests with certificate validation enabled; the browser opened the saved order list without a certificate-warning page.

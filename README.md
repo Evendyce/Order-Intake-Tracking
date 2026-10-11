@@ -15,7 +15,8 @@ Progress uses Markdown task lists and tables with a **Completed** column: `☐` 
 - [x] Verify critical backend logic and API behaviour with tests.
 - [x] Verify the main UI flow in a browser.
 - [x] Verify the complete Visual Studio HTTPS startup experience and core end-to-end workflows.
-- [ ] Verify setup on a fresh checkout and browser certificate trust.
+- [x] Trust the development browser HTTPS certificate and verify HTTPS with certificate validation enabled.
+- [ ] Verify setup on a fresh checkout.
 - [ ] Complete final review and record the narrated demo.
 
 ## Technology and structure
@@ -94,9 +95,9 @@ Run the instance creation command in a normal Windows terminal. The development 
 | API HTTP | `http://localhost:5214` |
 | OpenAPI document (Development) | `https://localhost:7145/openapi/v1.json` |
 
-The Angular `prestart` script exports its local HTTPS certificate. `/api/**` and `/openapi/**` are proxied to the API. Initial API reads retry temporary connection failures while the server starts; browser certificate trust remains outstanding.
+The Angular `prestart` script exports its local HTTPS certificate. `/api/**` and `/openapi/**` are proxied to the API. Initial API reads retry temporary connection failures while the server starts. On this development machine, `dotnet dev-certs https --trust` trusted the certificate used by Angular; the Orders page opened over HTTPS without a certificate-warning page.
 
-HTTPS startup was also verified from the command line by starting `npm start` in the client directory before `dotnet run --project OIT/OIT.Server --launch-profile https`. The client proxy returned the saved order after an API restart and OpenAPI returned HTTP 200. These checks used local certificate-validation bypass in the verification client; trust the developer certificate before browser HTTPS use. If automatic SPA startup cannot resolve `npm.cmd`, start the client separately with `npm start` and confirm Node/npm are on Visual Studio's PATH.
+HTTPS was verified with certificate validation enabled: the Angular page, API orders endpoint, and client-proxied orders endpoint returned HTTP 200. If automatic SPA startup cannot resolve `npm.cmd`, start the client separately with `npm start` and confirm Node/npm are on Visual Studio's PATH. Certificate trust is local to the Windows account; repeat the trust step on a fresh development machine.
 
 ### Verified command-line development workflow
 
@@ -176,7 +177,7 @@ API reads retry network errors and HTTP 502/503/504 up to eight times, one secon
 | Application source and tests in the local repository. | ☑ |
 | README setup instructions and SOLUTION design notes updated. | ☑ |
 | Verify full Visual Studio HTTPS startup. | ☑ |
-| Trust the development browser HTTPS certificate. | ☐ |
+| Trust the development browser HTTPS certificate. | ☑ |
 | Verify restoration and setup on a fresh checkout. | ☐ |
 | Final accessibility, responsive layout, and edge-case review. | ☐ |
 | Final GitHub submission review. | ☐ |
